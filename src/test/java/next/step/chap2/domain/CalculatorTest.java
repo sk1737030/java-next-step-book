@@ -6,17 +6,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class CalculatorTest {
 
     private Calculator cal;
-
 
     @BeforeEach
     public void setUp() {
@@ -46,8 +47,13 @@ class CalculatorTest {
         assertEquals(cal.add("//;\n1;2;3"), 6);
     }
 
+    @ParameterizedTest(name = "문자열 계산기에 {0}을 넣으면 RuntimeException 처리가 되어야한다")
+    @ValueSource(strings = {"-1", "-1111", "-9999", "-15"})
+    void _문자열_계산기에_음수를_전달하는_경우_RuntimeException_처리가_되어야한다(String minusValues) {
+        assertThrows(RuntimeException.class, () -> cal.add(minusValues));
+    }
 
-        @Test
+    @Test
     void subtract() {
         assertEquals(3, cal.subtract(6, 3));
     }

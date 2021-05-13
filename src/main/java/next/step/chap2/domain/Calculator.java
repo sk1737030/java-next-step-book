@@ -22,8 +22,13 @@ public class Calculator {
 
     public int add(String values) {
         int result = 0;
+
         if (values.isEmpty()) {
             return result;
+        }
+
+        if(values.charAt(0) == '-') {
+            throw new RuntimeException();
         }
 
         Pattern p = Pattern.compile("\\d(\\/\\/[^\\/\\/n]+\\\\n)?([^/|;|:|,])*");
