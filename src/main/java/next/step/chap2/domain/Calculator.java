@@ -21,13 +21,13 @@ public class Calculator {
     }
 
     public int add(String values) {
-        Pattern p = Pattern.compile("[^(,|:)]*");
-        Matcher m = p.matcher(values);
-
         int result = 0;
-
-        if (values.isEmpty())
+        if (values.isEmpty()) {
             return result;
+        }
+
+        Pattern p = Pattern.compile("\\d(\\/\\/[^\\/\\/n]+\\\\n)?([^/|;|:|,])*");
+        Matcher m = p.matcher(values);
 
         while (m.find()) {
             String group = m.group();

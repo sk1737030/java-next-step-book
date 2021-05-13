@@ -18,7 +18,6 @@ class CalculatorTest {
     private Calculator cal;
 
 
-
     @BeforeEach
     public void setUp() {
         cal = new Calculator();
@@ -43,6 +42,12 @@ class CalculatorTest {
     }
 
     @Test
+    void _커스텀_구분자를_포함한_값을_입력_할_경우_구분자는_세미콜론이며_결과_값은_6이_반환되어야한다() {
+        assertEquals(cal.add("//;\n1;2;3"), 6);
+    }
+
+
+        @Test
     void subtract() {
         assertEquals(3, cal.subtract(6, 3));
     }
