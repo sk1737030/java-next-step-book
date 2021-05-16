@@ -29,6 +29,10 @@ public class WebServer {
                 RequestHandler requestHandler = new RequestHandler(connection);
                 requestHandler.start();
             }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
+
+
     }
 }
