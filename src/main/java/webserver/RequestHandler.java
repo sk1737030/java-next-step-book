@@ -26,14 +26,14 @@ public class RequestHandler extends Thread {
             String httpUrl = null;
             String line;
             boolean readLineBool = true;
-            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in))) {
-                while ((line = bufferedReader.readLine()) != null) {
-                    if (readLineBool) {
-                        httpUrl = IOUtils.readHttpUrl(line);
-                        readLineBool = false;
-                    }
-                    System.out.println(line);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            while ((line = br.readLine()) != null) {
+                if (readLineBool) {
+                    httpUrl = IOUtils.readHttpUrl(line);
+                    readLineBool = false;
                 }
+                log.info(line);
             }
 
             DataOutputStream dos = new DataOutputStream(out);
@@ -41,12 +41,11 @@ public class RequestHandler extends Thread {
             byte[] body = Files.readAllBytes(new File("./webapp" + httpUrl).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
-
-            dos.close();
-
-        } catch (IOException e) {
+        } catch (
+                IOException e) {
             log.error(e.getMessage());
         }
+
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

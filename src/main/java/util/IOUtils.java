@@ -20,4 +20,10 @@ public class IOUtils {
         String[] httpLine = line.split(" ");
         return httpLine[1];
     }
+
+    public static String readHttpUrl(BufferedReader br) throws IOException {
+        String line = br.readLine();
+        String[] httpLine = line.split(" ");
+        return httpLine[1];
+    }
 }
