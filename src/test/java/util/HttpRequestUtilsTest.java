@@ -1,5 +1,6 @@
 package util;
 
+import model.User;
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
@@ -57,15 +58,43 @@ class HttpRequestUtilsTest {
     }
 
     @Test
-    void getKeyValue_invalid() throws Exception {
+    void getKeyValue_invalid() {
         Pair pair = HttpRequestUtils.getKeyValue("userId", "=");
         assertNull(pair);
     }
 
     @Test
-    void parseHeader() throws Exception {
+    void parseHeader() {
         String header = "Content-Length: 59";
         Pair pair = HttpRequestUtils.parseHeader(header);
         assertEquals(pair, new Pair("Content-Length", "59"));
     }
+
+    @Test
+    void hasParam() {
+        String params = "/user/create?userId=java&password=1234&name=test&email=sk1737030@naver.com";
+        String params2 = "/user/create";
+        assertTrue(HttpRequestUtils.hasParam(params));
+        assertFalse(HttpRequestUtils.hasParam(params2));
+    }
+
+    @Test
+    void hasNotParam() {
+        String params = "/user/create";
+        assertFalse(HttpRequestUtils.hasParam(params));
+    }
+
+    @Test
+    void readValue() {
+        String params = "userId=java&password=1234&name=test&email=sk1737030@naver.com";
+        Map<String, String> objectValues = HttpRequestUtils.parseQueryString(params);
+        User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+
+        assertEquals(objectValues.get("userId"), "java");
+        assertEquals(objectValues.get("userId"), user.getUserId());
+        assertEquals(objectValues.get("password"), user.getPassword());
+        assertEquals(objectValues.get("name"), user.getName());
+        assertEquals(objectValues.get("email"), user.getEmail());
+    }
+
 }
