@@ -9,6 +9,7 @@ import util.IOUtils;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHandler extends Thread {
@@ -42,12 +43,10 @@ public class RequestHandler extends Thread {
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            int index = httpUrl.indexOf("?");
-            String requestPath = httpUrl.substring(0, index);
-            String requestParam = httpUrl.substring(index + 1);
+            Map<String, String> requestParamsMap = parseUrlToMap(httpUrl);
 
-            if ("/user/create".equals(requestPath)) {
-                Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestParam);
+            if ("/user/create".equals(requestParamsMap.get("requestPath"))) {
+                Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestParamsMap.get("requestParam"));
                 User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
                 log.info("회원가입 : " + user.toString());
             }
@@ -60,6 +59,20 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
 
+    }
+
+    private HashMap<String, String> parseUrlToMap(String httpUrl) {
+        HashMap<String, String> requestParamsMap = new HashMap<>();
+        if (httpUrl == null) return requestParamsMap;
+
+        if (HttpRequestUtils.hasParam(httpUrl)) {
+            int index = httpUrl.indexOf("?");
+            requestParamsMap.put("requestPath", httpUrl.substring(0, index));
+            requestParamsMap.put("requestParam", httpUrl.substring(index + 1));
+        } else {
+            requestParamsMap.put("requestPath", httpUrl);
+        }
+        return requestParamsMap;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
