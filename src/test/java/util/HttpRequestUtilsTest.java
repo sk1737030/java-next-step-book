@@ -71,20 +71,6 @@ class HttpRequestUtilsTest {
     }
 
     @Test
-    void hasParam() {
-        String params = "/user/create?userId=java&password=1234&name=test&email=sk1737030@naver.com";
-        String params2 = "/user/create";
-        assertTrue(HttpRequestUtils.hasParam(params));
-        assertFalse(HttpRequestUtils.hasParam(params2));
-    }
-
-    @Test
-    void hasNotParam() {
-        String params = "/user/create";
-        assertFalse(HttpRequestUtils.hasParam(params));
-    }
-
-    @Test
     void readValue() {
         String params = "userId=java&password=1234&name=test&email=sk1737030@naver.com";
         Map<String, String> objectValues = HttpRequestUtils.parseQueryString(params);

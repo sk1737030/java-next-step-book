@@ -1,5 +1,6 @@
 package webserver;
 
+
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,12 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+    public static final String REQUEST_PATH = "requestPath";
+    public static final String REQUEST_PARAM = "requestParam";
 
     private Socket connection;
 
@@ -27,31 +31,41 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            String httpUrl = null;
-            String line;
-            boolean readLineBool = true;
-
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            Map<String, String> requestHeaderParamMap = new HashMap<>();
+            String[] httpUrl;
 
-            while ((line = br.readLine()) != null && !line.equals("")) {
-                if (readLineBool) {
-                    httpUrl = IOUtils.readHttpUrl(line);
-                    readLineBool = false;
-                }
-                log.info(line);
+            String headerLine = br.readLine();
+            httpUrl = IOUtils.readHttpUrlHeader(headerLine);
+
+            while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
+                HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
+                requestHeaderParamMap.put(pair.getKey(), pair.getValue());
+
+                log.info(headerLine);
             }
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            Map<String, String> requestParamsMap = parseUrlToMap(httpUrl);
+            parseUrlToMap(requestHeaderParamMap, Objects.requireNonNull(httpUrl)[1]);
+            String requestPath = requestHeaderParamMap.get(REQUEST_PATH);
 
-            if ("/user/create".equals(requestParamsMap.get("requestPath"))) {
-                Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestParamsMap.get("requestParam"));
-                User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
-                log.info("회원가입 : " + user.toString());
+            if (httpUrl[0].equals("GET")) {
+                if ("/user/create".equals(requestPath)) {
+                    Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
+                    User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+                    log.info("GET 회원가입 : " + user.toString());
+                }
+            } else {
+                if ("/user/create".equals(requestPath)) {
+                    String contentBodyData = IOUtils.readData(br, Integer.parseInt(requestHeaderParamMap.get("Content-Length")));
+                    Map<String, String> objectValues = HttpRequestUtils.parseQueryString(contentBodyData);
+                    User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+                    log.info("POST 회원가입 : " + user.toString());
+                }
             }
 
-            byte[] body = Files.readAllBytes(new File("./webapp" + httpUrl).toPath());
+            byte[] body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (
@@ -61,18 +75,16 @@ public class RequestHandler extends Thread {
 
     }
 
-    private HashMap<String, String> parseUrlToMap(String httpUrl) {
-        HashMap<String, String> requestParamsMap = new HashMap<>();
-        if (httpUrl == null) return requestParamsMap;
-
-        if (HttpRequestUtils.hasParam(httpUrl)) {
-            int index = httpUrl.indexOf("?");
-            requestParamsMap.put("requestPath", httpUrl.substring(0, index));
-            requestParamsMap.put("requestParam", httpUrl.substring(index + 1));
+    private Map<String, String> parseUrlToMap(Map<String, String> requestHeaderParamMap, String httpUrl) {
+        if (httpUrl == null) return requestHeaderParamMap;
+        int index = httpUrl.indexOf("?");
+        if (index > -1) {
+            requestHeaderParamMap.put(REQUEST_PATH, httpUrl.substring(0, index));
+            requestHeaderParamMap.put(REQUEST_PARAM, httpUrl.substring(index + 1));
         } else {
-            requestParamsMap.put("requestPath", httpUrl);
+            requestHeaderParamMap.put(REQUEST_PATH, httpUrl);
         }
-        return requestParamsMap;
+        return requestHeaderParamMap;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

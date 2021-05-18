@@ -2,6 +2,7 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
 
 public class IOUtils {
     /**
@@ -16,14 +17,17 @@ public class IOUtils {
         return String.copyValueOf(body);
     }
 
-    public static String readHttpUrl(String line) {
-        String[] httpLine = line.split(" ");
+    public static String[] readHttpUrlHeader(String httpUrlLine) throws IOException {
+        return httpUrlLine.split(" ");
+    }
+
+    public static String readHttpUrl(String url) {
+        String[] httpLine = url.split(" ");
         return httpLine[1];
     }
 
-    public static String readHttpUrl(BufferedReader br) throws IOException {
-        String line = br.readLine();
-        String[] httpLine = line.split(" ");
-        return httpLine[1];
+    public static void readHttpUrlHeader(Map<String, String> requestHeaderParamMap, String line) {
+        int index = line.indexOf(":");
+        requestHeaderParamMap.put(line.substring(0, index), line.substring(index + 1));
     }
 }

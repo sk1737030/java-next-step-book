@@ -29,4 +29,15 @@ class IOUtilsTest {
 
         assertEquals(expected, IOUtils.readHttpUrl(data));
     }
+
+    @Test
+    void readHttpUrlHeader() throws IOException {
+        String http = "POST /user/create HTTP/1.1";
+        String[] urls = IOUtils.readHttpUrlHeader(http);
+
+        assertEquals("POST", urls[0]);
+        assertEquals("/user/create", urls[1]);
+        assertEquals("HTTP/1.1", urls[2]);
+    }
+
 }

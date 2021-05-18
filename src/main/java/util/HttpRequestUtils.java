@@ -52,10 +52,6 @@ public class HttpRequestUtils {
         return getKeyValue(header, ": ");
     }
 
-    public static boolean hasParam(String params) {
-        return params.indexOf("?") > 0;
-    }
-
     public static class Pair {
         String key;
         String value;
