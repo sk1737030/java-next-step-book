@@ -34,7 +34,7 @@ public class RequestHandler extends Thread {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             Map<String, String> requestHeaderParamMap = new HashMap<>();
             String[] httpUrl;
-
+            int httpStatus = 200;
             String headerLine = br.readLine();
             httpUrl = IOUtils.readHttpUrlHeader(headerLine);
 
@@ -54,6 +54,8 @@ public class RequestHandler extends Thread {
                 if ("/user/create".equals(requestPath)) {
                     Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
                     User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+                    httpUrl[1] = "/index.html";
+                    httpStatus = 302;
                     log.info("GET 회원가입 : " + user.toString());
                 }
             } else {
@@ -61,12 +63,20 @@ public class RequestHandler extends Thread {
                     String contentBodyData = IOUtils.readData(br, Integer.parseInt(requestHeaderParamMap.get("Content-Length")));
                     Map<String, String> objectValues = HttpRequestUtils.parseQueryString(contentBodyData);
                     User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+                    httpUrl[1] = "/index.html";
+                    httpStatus = 302;
                     log.info("POST 회원가입 : " + user.toString());
                 }
             }
 
             byte[] body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
-            response200Header(dos, body.length);
+
+            if (httpStatus == 302) {
+                response302Header(dos, body.length);
+            } else {
+                response200Header(dos, body.length);
+            }
+
             responseBody(dos, body);
         } catch (
                 IOException e) {
@@ -90,6 +100,18 @@ public class RequestHandler extends Thread {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: /index.html" + "\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
