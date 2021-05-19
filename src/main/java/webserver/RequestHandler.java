@@ -1,6 +1,7 @@
 package webserver;
 
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,8 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             Map<String, String> requestHeaderParamMap = new HashMap<>();
+
             String[] httpUrl;
-            int httpStatus = 200;
             String headerLine = br.readLine();
             httpUrl = IOUtils.readHttpUrlHeader(headerLine);
 
@@ -50,36 +51,84 @@ public class RequestHandler extends Thread {
             parseUrlToMap(requestHeaderParamMap, Objects.requireNonNull(httpUrl)[1]);
             String requestPath = requestHeaderParamMap.get(REQUEST_PATH);
 
+            byte[] body = null;
+
             if (httpUrl[0].equals("GET")) {
-                if ("/user/create".equals(requestPath)) {
-                    Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
-                    User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
-                    httpUrl[1] = "/index.html";
-                    httpStatus = 302;
-                    log.info("GET 회원가입 : " + user.toString());
-                }
+                body = get(requestHeaderParamMap, httpUrl, dos, requestPath, body);
             } else {
-                if ("/user/create".equals(requestPath)) {
-                    String contentBodyData = IOUtils.readData(br, Integer.parseInt(requestHeaderParamMap.get("Content-Length")));
-                    Map<String, String> objectValues = HttpRequestUtils.parseQueryString(contentBodyData);
-                    User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
-                    httpUrl[1] = "/index.html";
-                    httpStatus = 302;
-                    log.info("POST 회원가입 : " + user.toString());
-                }
-            }
-
-            byte[] body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
-
-            if (httpStatus == 302) {
-                response302Header(dos, body.length);
-            } else {
-                response200Header(dos, body.length);
+                body = post(br, requestHeaderParamMap, httpUrl, dos, requestPath, body);
             }
 
             responseBody(dos, body);
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+
+    }
+
+    private byte[] get(Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath, byte[] body) throws IOException {
+        if ("/user/create".equals(requestPath)) {
+            Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
+            User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+
+            body = createUser(httpUrl, dos, user);
+
+            log.info("GET 회원가입 : " + user.toString());
+        } else if ("/user/login".equals(requestPath)) {
+            response200HeaderWithCookie(dos);
+        } else {
+            body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
+            response200Header(dos, body.length);
+        }
+        return body;
+    }
+
+    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath, byte[] body) throws IOException {
+        if ("/user/create".equals(requestPath)) {
+            User user = makeUser(br, requestHeaderParamMap);
+            body = createUser(httpUrl, dos, user);
+            log.info("POST 회원가입 : " + user.toString());
+        } else if ("/user/login".equals(requestPath)) {
+            User loginUser = makeUser(br, requestHeaderParamMap);
+            User user = DataBase.findUserById(loginUser.getUserId());
+
+            if (checkUser(loginUser, user)) {
+                response200HeaderWithCookie(dos);
+            } else {
+                response200HeaderWithFailCookie(dos);
+            }
+        }
+        return body;
+    }
+
+    private User makeUser(BufferedReader br, Map<String, String> requestHeaderParamMap) throws IOException {
+        String contentBodyData = IOUtils.readData(br, Integer.parseInt(requestHeaderParamMap.get("Content-Length")));
+        Map<String, String> objectValues = HttpRequestUtils.parseQueryString(contentBodyData);
+        return new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+    }
+
+    private boolean checkUser(User loginUser, User user) {
+        return user != null && user.getUserId().equals(loginUser.getUserId()) && user.getPassword().equals(loginUser.getPassword());
+    }
+
+    private byte[] createUser(String[] httpUrl, DataOutputStream dos, User user) throws IOException {
+        byte[] body;
+        DataBase.addUser(user);
+        httpUrl[1] = "/index.html";
+        body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
+        response302Header(dos, body.length);
+        return body;
+    }
+
+
+    private void response200HeaderWithFailCookie(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            //dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Set-Cookie: logined=false\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
             log.error(e.getMessage());
         }
 
@@ -102,6 +151,19 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
+    private void response200HeaderWithCookie(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            //dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Set-Cookie: logined=true\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
