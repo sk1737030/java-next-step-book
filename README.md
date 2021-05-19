@@ -43,14 +43,14 @@
 ### 요구사항 5 - 로그인하기
 
 - [X] 로그인이 성공하면 /index.html로 이동
-- [ ] 로그인이 실패하면 /user/login_failed.html로 이동
-- [ ] 쿠키를 사용해 로그인 상태 유지
-    - [ ] 로그인이 성공할 경우 요청 헤더의 Cookie 헤더 값이 logined=true
-    - [ ] 로그인이 실패할 경우 요청 헤더의 Cookie 헤더 값이 logined=false
+- [x] 로그인이 실패하면 /user/login_failed.html로 이동
+- [x] 쿠키를 사용해 로그인 상태 유지
+    - [x] 로그인이 성공할 경우 요청 헤더의 Cookie 헤더 값이 logined=true
+    - [x] 로그인이 실패할 경우 요청 헤더의 Cookie 헤더 값이 logined=false
 
 ### 요구사항 6 - 사용자 목록 출력
 
-*
+- [x] 
 
 ### 요구사항 7 - stylesheet 적용
 

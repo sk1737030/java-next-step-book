@@ -54,24 +54,29 @@ public class RequestHandler extends Thread {
             byte[] body = null;
 
             if (httpUrl[0].equals("GET")) {
-                body = get(requestHeaderParamMap, httpUrl, dos, requestPath, body);
+                body = get(requestHeaderParamMap, httpUrl, dos, requestPath);
             } else {
-                body = post(br, requestHeaderParamMap, httpUrl, dos, requestPath, body);
+                body = post(br, requestHeaderParamMap, httpUrl, dos, requestPath);
             }
 
-            responseBody(dos, body);
+            if (body != null) {
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
 
     }
 
-    private byte[] get(Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath, byte[] body) throws IOException {
+    private byte[] get(Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath) throws IOException {
+        byte[] body = null;
         if ("/user/create".equals(requestPath)) {
             Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
-            User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
 
-            body = createUser(httpUrl, dos, user);
+            User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+            DataBase.addUser(user);
+            body = Files.readAllBytes(new File("./webapp/index.html").toPath());
+            response302Header(dos, body.length);
 
             log.info("GET 회원가입 : " + user.toString());
         } else if ("/user/login".equals(requestPath)) {
@@ -83,11 +88,16 @@ public class RequestHandler extends Thread {
         return body;
     }
 
-    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath, byte[] body) throws IOException {
+    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath) throws IOException {
+        byte[] body = null;
+
         if ("/user/create".equals(requestPath)) {
             User user = makeUser(br, requestHeaderParamMap);
-            body = createUser(httpUrl, dos, user);
-            log.info("POST 회원가입 : " + user.toString());
+            DataBase.addUser(user);
+            body = Files.readAllBytes(new File("./webapp/index.html").toPath());
+            response302Header(dos, body.length);
+            log.info("POST 회원가입 : {}", user.toString());
+
         } else if ("/user/login".equals(requestPath)) {
             User loginUser = makeUser(br, requestHeaderParamMap);
             User user = DataBase.findUserById(loginUser.getUserId());
@@ -95,7 +105,9 @@ public class RequestHandler extends Thread {
             if (checkUser(loginUser, user)) {
                 response200HeaderWithCookie(dos);
             } else {
-                response200HeaderWithFailCookie(dos);
+                httpUrl[1] = "/user/login_failed.html";
+                body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
+                response400HeaderWithFailCookie(dos, body.length);
             }
         }
         return body;
@@ -111,21 +123,11 @@ public class RequestHandler extends Thread {
         return user != null && user.getUserId().equals(loginUser.getUserId()) && user.getPassword().equals(loginUser.getPassword());
     }
 
-    private byte[] createUser(String[] httpUrl, DataOutputStream dos, User user) throws IOException {
-        byte[] body;
-        DataBase.addUser(user);
-        httpUrl[1] = "/index.html";
-        body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
-        response302Header(dos, body.length);
-        return body;
-    }
-
-
-    private void response200HeaderWithFailCookie(DataOutputStream dos) {
+    private void response400HeaderWithFailCookie(DataOutputStream dos, int lengthOfBodyContent) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            //dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("Set-Cookie: logined=false\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
