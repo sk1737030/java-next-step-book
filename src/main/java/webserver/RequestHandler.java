@@ -11,9 +11,7 @@ import util.IOUtils;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -81,6 +79,26 @@ public class RequestHandler extends Thread {
             log.info("GET 회원가입 : " + user.toString());
         } else if ("/user/login".equals(requestPath)) {
             response200HeaderWithCookie(dos);
+        } else if ("/user/list".equals(requestPath) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
+            Collection<User> findAll =  DataBase.findAll();
+            StringBuilder sb = new StringBuilder();
+            System.out.println("sdfsdfds");
+            int i = 1;
+            for (User user : findAll) {
+                sb.append("<tr>");
+                sb.append("<th scope='row'>").append(i++).append("</th>");
+                sb.append("<td >").append(user.getUserId()).append("</td >");
+                sb.append("<td >").append(user.getName()).append("</td >");
+                sb.append("<td >").append(user.getEmail()).append("</td >");
+                sb.append("<td ><a class='btn btn-success' href ='#' role = 'button' > 수정 </a ></td >");
+                sb.append("</tr>");
+            }
+
+            System.out.println(sb);
+            body = sb.toString().getBytes();
+            /*Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());*/
+
+            response200Header(dos, body.length);
         } else {
             body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
             response200Header(dos, body.length);
