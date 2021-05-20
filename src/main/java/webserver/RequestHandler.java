@@ -82,7 +82,6 @@ public class RequestHandler extends Thread {
         } else if ("/user/list".equals(requestPath) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
             Collection<User> findAll =  DataBase.findAll();
             StringBuilder sb = new StringBuilder();
-            System.out.println("sdfsdfds");
             int i = 1;
             for (User user : findAll) {
                 sb.append("<tr>");
@@ -94,7 +93,6 @@ public class RequestHandler extends Thread {
                 sb.append("</tr>");
             }
 
-            System.out.println(sb);
             body = sb.toString().getBytes();
             /*Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());*/
 
