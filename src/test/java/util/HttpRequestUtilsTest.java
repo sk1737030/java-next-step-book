@@ -4,6 +4,8 @@ import model.User;
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,5 +84,20 @@ class HttpRequestUtilsTest {
         assertEquals(objectValues.get("name"), user.getName());
         assertEquals(objectValues.get("email"), user.getEmail());
     }
+
+    @Test
+    void parseRequestUrlToMap() throws IOException {
+        Map<String, String> expectedMap = new HashMap<>();
+        String data = "GET /index.jsp HTTP/1.1";
+        expectedMap.put("requestUrl", data);
+        expectedMap.put("requestMethod", "GET");
+        expectedMap.put("requestPath", "/index.jsp");
+        expectedMap.put("requestHttpVersion", "HTTP/1.1");
+
+        Map<String, String> actualMap = new HashMap<>();
+        HttpRequestUtils.parseRequestUrlToMap(actualMap, data);
+        assertEquals(actualMap, expectedMap);
+    }
+
 
 }

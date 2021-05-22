@@ -17,7 +17,7 @@ public class IOUtils {
         return String.copyValueOf(body);
     }
 
-    public static String[] readHttpUrlHeader(String httpUrlLine) throws IOException {
+    public static String[] parseRequestUrlToMap(String httpUrlLine) throws IOException {
         return httpUrlLine.split(" ");
     }
 
@@ -26,8 +26,4 @@ public class IOUtils {
         return httpLine[1];
     }
 
-    public static void readHttpUrlHeader(Map<String, String> requestHeaderParamMap, String line) {
-        int index = line.indexOf(":");
-        requestHeaderParamMap.put(line.substring(0, index), line.substring(index + 1));
-    }
 }

@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,10 +32,10 @@ class IOUtilsTest {
         assertEquals(expected, IOUtils.readHttpUrl(data));
     }
 
-    @Test
+        @Test
     void readHttpUrlHeader() throws IOException {
         String http = "POST /user/create HTTP/1.1";
-        String[] urls = IOUtils.readHttpUrlHeader(http);
+        String[] urls = IOUtils.parseRequestUrlToMap(http);
 
         assertEquals("POST", urls[0]);
         assertEquals("/user/create", urls[1]);

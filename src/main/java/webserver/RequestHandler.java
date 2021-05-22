@@ -11,7 +11,9 @@ import util.IOUtils;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -32,10 +34,9 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             Map<String, String> requestHeaderParamMap = new HashMap<>();
+            String headerLine;
 
-            String[] httpUrl;
-            String headerLine = br.readLine();
-            httpUrl = IOUtils.readHttpUrlHeader(headerLine);
+            HttpRequestUtils.parseRequestUrlToMap(requestHeaderParamMap, br.readLine());
 
             while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
                 HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
@@ -45,16 +46,14 @@ public class RequestHandler extends Thread {
             }
 
             DataOutputStream dos = new DataOutputStream(out);
+            parseUrlToMap(requestHeaderParamMap, requestHeaderParamMap.get(REQUEST_PATH));
 
-            parseUrlToMap(requestHeaderParamMap, Objects.requireNonNull(httpUrl)[1]);
-            String requestPath = requestHeaderParamMap.get(REQUEST_PATH);
+            byte[] body;
 
-            byte[] body = null;
-
-            if (httpUrl[0].equals("GET")) {
-                body = get(requestHeaderParamMap, httpUrl, dos, requestPath);
+            if (requestHeaderParamMap.get("requestMethod").equals("GET")) {
+                body = get(requestHeaderParamMap, dos, requestHeaderParamMap.get(REQUEST_PATH));
             } else {
-                body = post(br, requestHeaderParamMap, httpUrl, dos, requestPath);
+                body = post(br, requestHeaderParamMap, dos, requestHeaderParamMap.get(REQUEST_PATH));
             }
 
             if (body != null) {
@@ -66,7 +65,7 @@ public class RequestHandler extends Thread {
 
     }
 
-    private byte[] get(Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath) throws IOException {
+    private byte[] get(Map<String, String> requestHeaderParamMap, DataOutputStream dos, String requestPath) throws IOException {
         byte[] body = null;
         if ("/user/create".equals(requestPath)) {
             Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
@@ -80,7 +79,7 @@ public class RequestHandler extends Thread {
         } else if ("/user/login".equals(requestPath)) {
             response200HeaderWithCookie(dos);
         } else if ("/user/list".equals(requestPath) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
-            Collection<User> findAll =  DataBase.findAll();
+            Collection<User> findAll = DataBase.findAll();
             StringBuilder sb = new StringBuilder();
             int i = 1;
             for (User user : findAll) {
@@ -97,14 +96,19 @@ public class RequestHandler extends Thread {
             /*Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());*/
 
             response200Header(dos, body.length);
+        } else if (requestPath.contains("css")) {
+            body = Files.readAllBytes(new File("./webapp" + requestPath).toPath());
+            responseCssHeader(dos, body.length);
         } else {
-            body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
+
+            body = Files.readAllBytes(new File("./webapp" + requestPath).toPath());
             response200Header(dos, body.length);
         }
         return body;
     }
 
-    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, String[] httpUrl, DataOutputStream dos, String requestPath) throws IOException {
+
+    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, DataOutputStream dos, String requestPath) throws IOException {
         byte[] body = null;
 
         if ("/user/create".equals(requestPath)) {
@@ -121,8 +125,7 @@ public class RequestHandler extends Thread {
             if (checkUser(loginUser, user)) {
                 response200HeaderWithCookie(dos);
             } else {
-                httpUrl[1] = "/user/login_failed.html";
-                body = Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());
+                body = Files.readAllBytes(new File("./webapp/user/login_failed.html").toPath());
                 response400HeaderWithFailCookie(dos, body.length);
             }
         }
@@ -137,6 +140,18 @@ public class RequestHandler extends Thread {
 
     private boolean checkUser(User loginUser, User user) {
         return user != null && user.getUserId().equals(loginUser.getUserId()) && user.getPassword().equals(loginUser.getPassword());
+    }
+
+    private void responseCssHeader(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
+            dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+
     }
 
     private void response400HeaderWithFailCookie(DataOutputStream dos, int lengthOfBodyContent) {
