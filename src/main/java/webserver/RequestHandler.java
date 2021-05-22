@@ -10,6 +10,7 @@ import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,11 +33,17 @@ public class RequestHandler extends Thread {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             Map<String, String> requestHeaderParamMap = new HashMap<>();
             String headerLine;
 
-            HttpRequestUtils.parseRequestUrlToMap(requestHeaderParamMap, br.readLine());
+            String line = br.readLine();
+
+            if (line == null) {
+                return;
+            }
+
+            HttpRequestUtils.parseRequestUrlToMap(requestHeaderParamMap, line);
 
             while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
                 HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
@@ -78,30 +85,32 @@ public class RequestHandler extends Thread {
             log.info("GET 회원가입 : " + user.toString());
         } else if ("/user/login".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
             response200HeaderWithCookie(dos);
-        } else if ("/user/list".equals(requestHeaderParamMap.get(REQUEST_PATH)) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
-            Collection<User> findAll = DataBase.findAll();
-            StringBuilder sb = new StringBuilder();
-            int i = 1;
-            for (User user : findAll) {
-                sb.append("<tr>");
-                sb.append("<th scope='row'>").append(i++).append("</th>");
-                sb.append("<td >").append(user.getUserId()).append("</td >");
-                sb.append("<td >").append(user.getName()).append("</td >");
-                sb.append("<td >").append(user.getEmail()).append("</td >");
-                sb.append("<td ><a class='btn btn-success' href ='#' role = 'button' > 수정 </a ></td >");
-                sb.append("</tr>");
-            }
-
-            body = sb.toString().getBytes();
-            /*Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());*/
-
-            response200Header(dos, body.length);
-        } else if (requestHeaderParamMap.get(REQUEST_PATH).contains(".css")) {
-            body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
-            responseCssHeader(dos, body.length);
         } else {
-            body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
-            response200Header(dos, body.length);
+            boolean isLogined = Boolean.parseBoolean(HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"));
+
+            if ("/user/list".equals(requestHeaderParamMap.get(REQUEST_PATH)) && isLogined) {
+                Collection<User> findAll = DataBase.findAll();
+                StringBuilder sb = new StringBuilder();
+                sb.append("<table border='1'");
+                for (User user : findAll) {
+                    sb.append("<tr>");
+                    sb.append("<td >").append(user.getUserId()).append("</td >");
+                    sb.append("<td >").append(user.getName()).append("</td >");
+                    sb.append("<td >").append(user.getEmail()).append("</td >");
+                    sb.append("<td ><a class='btn btn-success' href ='#' role = 'button' > 수정 </a ></td >");
+                    sb.append("</tr>");
+                }
+                sb.append("</table");
+
+                body = sb.toString().getBytes();
+                response200Header(dos, body.length);
+            } else if (requestHeaderParamMap.get(REQUEST_PATH).endsWith(".css")) {
+                body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
+                responseCssHeader(dos, body.length);
+            } else {
+                body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
+                response200Header(dos, body.length);
+            }
         }
         return body;
     }
