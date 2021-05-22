@@ -54,7 +54,7 @@
 
 ### 요구사항 7 - stylesheet 적용
 
-- [ ] Css인 경우 응답 헤더의 Content-Type을 text/css로 전송한다.
+- [X] Css인 경우 응답 헤더의 Content-Type을 text/css로 전송한다.
 
 ### heroku 서버에 배포 후
 

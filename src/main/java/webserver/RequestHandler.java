@@ -51,9 +51,9 @@ public class RequestHandler extends Thread {
             byte[] body;
 
             if (requestHeaderParamMap.get("requestMethod").equals("GET")) {
-                body = get(requestHeaderParamMap, dos, requestHeaderParamMap.get(REQUEST_PATH));
+                body = get(requestHeaderParamMap, dos);
             } else {
-                body = post(br, requestHeaderParamMap, dos, requestHeaderParamMap.get(REQUEST_PATH));
+                body = post(br, requestHeaderParamMap, dos);
             }
 
             if (body != null) {
@@ -65,9 +65,9 @@ public class RequestHandler extends Thread {
 
     }
 
-    private byte[] get(Map<String, String> requestHeaderParamMap, DataOutputStream dos, String requestPath) throws IOException {
+    private byte[] get(Map<String, String> requestHeaderParamMap, DataOutputStream dos) throws IOException {
         byte[] body = null;
-        if ("/user/create".equals(requestPath)) {
+        if ("/user/create".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
             Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
 
             User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
@@ -76,9 +76,9 @@ public class RequestHandler extends Thread {
             response302Header(dos, body.length);
 
             log.info("GET 회원가입 : " + user.toString());
-        } else if ("/user/login".equals(requestPath)) {
+        } else if ("/user/login".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
             response200HeaderWithCookie(dos);
-        } else if ("/user/list".equals(requestPath) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
+        } else if ("/user/list".equals(requestHeaderParamMap.get(REQUEST_PATH)) && Boolean.parseBoolean(util.HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"))) {
             Collection<User> findAll = DataBase.findAll();
             StringBuilder sb = new StringBuilder();
             int i = 1;
@@ -96,29 +96,28 @@ public class RequestHandler extends Thread {
             /*Files.readAllBytes(new File("./webapp" + httpUrl[1]).toPath());*/
 
             response200Header(dos, body.length);
-        } else if (requestPath.contains("css")) {
-            body = Files.readAllBytes(new File("./webapp" + requestPath).toPath());
+        } else if (requestHeaderParamMap.get(REQUEST_PATH).contains(".css")) {
+            body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
             responseCssHeader(dos, body.length);
         } else {
-
-            body = Files.readAllBytes(new File("./webapp" + requestPath).toPath());
+            body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
             response200Header(dos, body.length);
         }
         return body;
     }
 
 
-    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, DataOutputStream dos, String requestPath) throws IOException {
+    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, DataOutputStream dos) throws IOException {
         byte[] body = null;
 
-        if ("/user/create".equals(requestPath)) {
+        if ("/user/create".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
             User user = makeUser(br, requestHeaderParamMap);
             DataBase.addUser(user);
             body = Files.readAllBytes(new File("./webapp/index.html").toPath());
             response302Header(dos, body.length);
             log.info("POST 회원가입 : {}", user.toString());
 
-        } else if ("/user/login".equals(requestPath)) {
+        } else if ("/user/login".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
             User loginUser = makeUser(br, requestHeaderParamMap);
             User user = DataBase.findUserById(loginUser.getUserId());
 
@@ -144,7 +143,7 @@ public class RequestHandler extends Thread {
 
     private void responseCssHeader(DataOutputStream dos, int lengthOfBodyContent) {
         try {
-            dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
+            dos.writeBytes("HTTP/1.1 200 OK\r\n");
             dos.writeBytes("Content-Type: text/css;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
