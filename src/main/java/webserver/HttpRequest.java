@@ -33,21 +33,17 @@ public class HttpRequest {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String headerLine;
             String line = br.readLine();
-
             if (line == null) {
                 return;
             }
+
             log.info(line);
-
             HttpRequestUtils.parseRequestUrlToMap(requestHeaderMap, line);
-
             while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
                 HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
                 requestHeaderMap.put(pair.getKey(), pair.getValue());
-
                 log.info(headerLine);
             }
-
 
             parseHeaderByUrl();
 

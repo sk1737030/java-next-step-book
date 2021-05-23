@@ -89,7 +89,6 @@ class HttpRequestUtilsTest {
     void parseRequestUrlToMap() throws IOException {
         Map<String, String> expectedMap = new HashMap<>();
         String data = "GET /index.jsp HTTP/1.1";
-        expectedMap.put("requestUrl", data);
         expectedMap.put("requestMethod", "GET");
         expectedMap.put("requestPath", "/index.jsp");
         expectedMap.put("requestHttpVersion", "HTTP/1.1");

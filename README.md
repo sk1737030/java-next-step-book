@@ -58,4 +58,17 @@
 
 ### heroku 서버에 배포 후
 
-* 
+*
+
+### Refactor 1
+
+- [X] 요청 데이터를 처리하는 로직을 별도의 클래스로 분리 (HttpRequest)
+    - [X] Http 메소드 , Url, 헤더, 본문을 분리하는 작업을 한다.
+    - [X] 헤더는 Map에 저장해 관리하고 getHeader("필드 이름") 메소드를 통해 관리한다
+    - [X] GET,POST에 따라 전달되는 인자를 Map을 통해 관리하고 getParameter("인자이름")메소드를 통해 관리
+
+### Refactor 2
+
+- [ ] 응답 데이터를 처리하는 로직을 별도의 클래스로 분리한다(HttpResponse)
+    - [ ] 응답을 보낼 때 html, css, js 파일을 직업 읽어 응답을 보내는 경우 (forward())
+    - [ ] 리다이렉트 메소드일 경우 (sendRedirect())
