@@ -6,14 +6,11 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
-import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHandler extends Thread {
@@ -31,36 +28,15 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            Map<String, String> requestHeaderParamMap = new HashMap<>();
-            String headerLine;
+        HttpRequest request = null;
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream(); DataOutputStream dos = new DataOutputStream(out)) {
+            request = new HttpRequest(in);
 
-            String line = br.readLine();
-
-            if (line == null) {
-                return;
-            }
-
-            HttpRequestUtils.parseRequestUrlToMap(requestHeaderParamMap, line);
-
-            while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
-                HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
-                requestHeaderParamMap.put(pair.getKey(), pair.getValue());
-
-                log.info(headerLine);
-            }
-
-            DataOutputStream dos = new DataOutputStream(out);
-            parseUrlToMap(requestHeaderParamMap, requestHeaderParamMap.get(REQUEST_PATH));
-
-            byte[] body;
-
-            if (requestHeaderParamMap.get("requestMethod").equals("GET")) {
-                body = get(requestHeaderParamMap, dos);
+            byte[] body ;
+            if (request.getMethod().equals("GET")) {
+                body = get(request, dos);
             } else {
-                body = post(br, requestHeaderParamMap, dos);
+                body = post(request, dos);
             }
 
             if (body != null) {
@@ -70,25 +46,24 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
 
+
     }
 
-    private byte[] get(Map<String, String> requestHeaderParamMap, DataOutputStream dos) throws IOException {
+    private byte[] get(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
         byte[] body = null;
-        if ("/user/create".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
-            Map<String, String> objectValues = HttpRequestUtils.parseQueryString(requestHeaderParamMap.get(REQUEST_PARAM));
-
-            User user = new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
+        if ("/user/create".equals(httpRequest.getPath())) {
+            User user = new User(httpRequest.getParameter("userId"), httpRequest.getParameter("password"),
+                    httpRequest.getParameter("name"), httpRequest.getParameter("email"));
             DataBase.addUser(user);
             body = Files.readAllBytes(new File("./webapp/index.html").toPath());
             response302Header(dos, body.length);
-
             log.info("GET 회원가입 : " + user.toString());
-        } else if ("/user/login".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
+        } else if ("/user/login".equals(httpRequest.getPath())) {
             response200HeaderWithCookie(dos);
         } else {
-            boolean isLogined = Boolean.parseBoolean(HttpRequestUtils.parseCookies(requestHeaderParamMap.getOrDefault("Cookie", "false")).get("logined"));
+            boolean isLogined = Boolean.parseBoolean(HttpRequestUtils.parseCookies(httpRequest.getHeader("Cookie")).get("logined"));
 
-            if ("/user/list".equals(requestHeaderParamMap.get(REQUEST_PATH)) && isLogined) {
+            if ("/user/list".equals(httpRequest.getPath()) && isLogined) {
                 Collection<User> findAll = DataBase.findAll();
                 StringBuilder sb = new StringBuilder();
                 sb.append("<table border='1'");
@@ -104,11 +79,11 @@ public class RequestHandler extends Thread {
 
                 body = sb.toString().getBytes();
                 response200Header(dos, body.length);
-            } else if (requestHeaderParamMap.get(REQUEST_PATH).endsWith(".css")) {
-                body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
+            } else if (httpRequest.getPath().endsWith(".css")) {
+                body = Files.readAllBytes(new File("./webapp" + httpRequest.getPath()).toPath());
                 responseCssHeader(dos, body.length);
             } else {
-                body = Files.readAllBytes(new File("./webapp" + requestHeaderParamMap.get(REQUEST_PATH)).toPath());
+                body = Files.readAllBytes(new File("./webapp" + httpRequest.getPath()).toPath());
                 response200Header(dos, body.length);
             }
         }
@@ -116,18 +91,18 @@ public class RequestHandler extends Thread {
     }
 
 
-    private byte[] post(BufferedReader br, Map<String, String> requestHeaderParamMap, DataOutputStream dos) throws IOException {
+    private byte[] post(HttpRequest request, DataOutputStream dos) throws IOException {
         byte[] body = null;
 
-        if ("/user/create".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
-            User user = makeUser(br, requestHeaderParamMap);
+        if ("/user/create".equals(request.getPath())) {
+            User user = new User(request.getParameter("userId"), request.getParameter("password"), request.getParameter("name"), request.getParameter("email"));
             DataBase.addUser(user);
             body = Files.readAllBytes(new File("./webapp/index.html").toPath());
             response302Header(dos, body.length);
             log.info("POST 회원가입 : {}", user.toString());
 
-        } else if ("/user/login".equals(requestHeaderParamMap.get(REQUEST_PATH))) {
-            User loginUser = makeUser(br, requestHeaderParamMap);
+        } else if ("/user/login".equals(request.getPath())) {
+            User loginUser = new User(request.getParameter("userId"), request.getParameter("password"), request.getParameter("name"), request.getParameter("email"));
             User user = DataBase.findUserById(loginUser.getUserId());
 
             if (checkUser(loginUser, user)) {
@@ -138,12 +113,6 @@ public class RequestHandler extends Thread {
             }
         }
         return body;
-    }
-
-    private User makeUser(BufferedReader br, Map<String, String> requestHeaderParamMap) throws IOException {
-        String contentBodyData = IOUtils.readData(br, Integer.parseInt(requestHeaderParamMap.get("Content-Length")));
-        Map<String, String> objectValues = HttpRequestUtils.parseQueryString(contentBodyData);
-        return new User(objectValues.get("userId"), objectValues.get("password"), objectValues.get("name"), objectValues.get("email"));
     }
 
     private boolean checkUser(User loginUser, User user) {
