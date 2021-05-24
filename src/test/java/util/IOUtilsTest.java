@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,22 +22,6 @@ class IOUtilsTest {
         logger.debug("parse body : {}", IOUtils.readData(br, data.length()));
     }
 
-    @Test
-    void readHttpUrl() throws IOException {
-        String expected = "/index.jsp";
-        String data = "GET /index.jsp HTTP/1.1";
 
-        assertEquals(expected, IOUtils.readHttpUrl(data));
-    }
-
-        @Test
-    void readHttpUrlHeader() throws IOException {
-        String http = "POST /user/create HTTP/1.1";
-        String[] urls = IOUtils.parseRequestUrlToMap(http);
-
-        assertEquals("POST", urls[0]);
-        assertEquals("/user/create", urls[1]);
-        assertEquals("HTTP/1.1", urls[2]);
-    }
 
 }

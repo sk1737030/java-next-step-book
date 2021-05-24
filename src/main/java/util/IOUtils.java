@@ -2,7 +2,6 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
 
 public class IOUtils {
     /**
@@ -16,14 +15,4 @@ public class IOUtils {
         br.read(body, 0, contentLength);
         return String.copyValueOf(body);
     }
-
-    public static String[] parseRequestUrlToMap(String httpUrlLine) throws IOException {
-        return httpUrlLine.split(" ");
-    }
-
-    public static String readHttpUrl(String url) {
-        String[] httpLine = url.split(" ");
-        return httpLine[1];
-    }
-
 }

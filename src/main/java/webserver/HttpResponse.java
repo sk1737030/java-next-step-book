@@ -21,19 +21,23 @@ public class HttpResponse {
         dos = new DataOutputStream(out);
     }
 
-    public void forward(String url) throws IOException {
-        final byte[] bytes = Files.readAllBytes(new File("./webapp" + url).toPath());
+public void forward(String url) {
+        try {
+            final byte[] bytes = Files.readAllBytes(new File("./webapp" + url).toPath());
 
-        if (url.endsWith(".css")) {
-            responseHeaderMap.put("Content-Type", "text/css;charset=utf-8");
-        } else if (url.endsWith(".js")) {
-            responseHeaderMap.put("Content-Type", "application/javascript");
-        } else {
-            responseHeaderMap.put("Content-Type", "text/html;charset=utf-8");
+            if (url.endsWith(".css")) {
+                responseHeaderMap.put("Content-Type", "text/css;charset=utf-8");
+            } else if (url.endsWith(".js")) {
+                responseHeaderMap.put("Content-Type", "application/javascript");
+            } else {
+                responseHeaderMap.put("Content-Type", "text/html;charset=utf-8");
+            }
+            responseHeaderMap.put("Content-Length", String.valueOf(bytes.length));
+            response200Header();
+            responseBody(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        responseHeaderMap.put("Content-Length", String.valueOf(bytes.length));
-        response200Header();
-        responseBody(bytes);
     }
 
     public void forwardBody(String contentBody) {
