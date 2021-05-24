@@ -69,6 +69,13 @@
 
 ### Refactor 2
 
-- [ ] 응답 데이터를 처리하는 로직을 별도의 클래스로 분리한다(HttpResponse)
-    - [ ] 응답을 보낼 때 html, css, js 파일을 직업 읽어 응답을 보내는 경우 (forward())
-    - [ ] 리다이렉트 메소드일 경우 (sendRedirect())
+- [X] 응답 데이터를 처리하는 로직을 별도의 클래스로 분리한다(HttpResponse)
+    - [X] 응답을 보낼 때 html, css, js 파일을 직업 읽어 응답을 보내는 경우 (forward())
+    - [X] 리다이렉트 메소드일 경우 (sendRedirect())
+
+### Refactor 3
+
+- [ ] 각 요청과 응답에 대한 처리를 담당하는 부분을 추상화해 인터페이스로 만든다.
+    - [ ] Controller 구현체를 Map에 저장한다. key는 url value는 해당하는 Controller이다.
+    - [ ] Controller 인터페이스를 구현하는 AbstractController 추상클래스를 추가해 중복을 제거
+    - [ ] service() 메소드에서 GET과 POST HTTP 메소드에 따라 doGet(), doPost() 메소드를 호출
