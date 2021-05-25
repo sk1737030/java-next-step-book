@@ -24,11 +24,12 @@ public class RequestLine {
         }
 
         method = split[0];
+         path = split[1];
 
         if (method.equals("GET")) {
             int index = split[1].indexOf("?");
             if (index > -1) {
-                path =  split[1].substring(0, index);
+                path = split[1].substring(0, index);
                 params = HttpRequestUtils.parseQueryString(split[1].substring(index + 1));
             }
         }
