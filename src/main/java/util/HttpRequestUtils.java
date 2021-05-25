@@ -52,6 +52,8 @@ public class HttpRequestUtils {
         return getKeyValue(header, ": ");
     }
 
+
+
     public static class Pair {
         String key;
         String value;
@@ -101,13 +103,5 @@ public class HttpRequestUtils {
         public String toString() {
             return "Pair [key=" + key + ", value=" + value + "]";
         }
-    }
-
-
-    public static void parseRequestUrlToMap(Map<String, String> requestHeaderParamMap, String line) {
-        String[] split = line.split(" ");
-        requestHeaderParamMap.put("requestMethod", split[0]);
-        requestHeaderParamMap.put("requestPath", split[1]);
-        requestHeaderParamMap.put("requestHttpVersion", split[2]);
     }
 }

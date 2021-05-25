@@ -19,9 +19,9 @@ import java.util.Map;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
-    private Socket connection;
-
     private static final Map<String, Controller> controllerMap = new HashMap<>();
+
+    private Socket connection;
 
     static {
         controllerMap.put("/user/create", new CreateController());

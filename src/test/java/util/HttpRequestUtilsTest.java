@@ -83,29 +83,4 @@ class HttpRequestUtilsTest {
         assertEquals(objectValues.get("name"), user.getName());
         assertEquals(objectValues.get("email"), user.getEmail());
     }
-
-    @Test
-    void parseRequestUrlToMap() {
-        Map<String, String> expectedMap = new HashMap<>();
-        String data = "GET /index.jsp HTTP/1.1";
-        expectedMap.put("requestMethod", "GET");
-        expectedMap.put("requestPath", "/index.jsp");
-        expectedMap.put("requestHttpVersion", "HTTP/1.1");
-
-        Map<String, String> actualMap = new HashMap<>();
-        HttpRequestUtils.parseRequestUrlToMap(actualMap, data);
-        assertEquals(actualMap, expectedMap);
-    }
-
-    @Test
-    void parseUrl_POST() {
-        String http = "POST /user/create HTTP/1.1";
-        Map<String, String> actual = new HashMap<>();
-
-        HttpRequestUtils.parseRequestUrlToMap(actual, http);
-
-        assertEquals("POST", actual.get("requestMethod"));
-        assertEquals("/user/create", actual.get("requestPath"));
-        assertEquals("HTTP/1.1", actual.get("requestHttpVersion"));
-    }
 }
