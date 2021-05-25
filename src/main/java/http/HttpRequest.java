@@ -43,6 +43,8 @@ public class HttpRequest {
 
             if (getMethod().equals("POST")) {
                 parseParameter(IOUtils.readData(br, Integer.parseInt(requestHeaderMap.get("Content-Length"))));
+            } else {
+                requestParameterMap = requestLine.getParams();
             }
 
 
