@@ -16,19 +16,13 @@ import java.util.Map;
 public class HttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
-    public static final String REQUEST_METHOD = "requestMethod";
-    public static final String REQUEST_PATH = "requestPath";
 
-    private final InputStream in;
     private final Map<String, String> requestHeaderMap = new HashMap<>();
     private Map<String, String> requestParameterMap;
+    private RequestLine requestLine;
+
 
     public HttpRequest(InputStream in) {
-        this.in = in;
-        parseInputStream();
-    }
-
-    private void parseInputStream() {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String headerLine;
@@ -38,14 +32,14 @@ public class HttpRequest {
             }
 
             log.info(line);
-            HttpRequestUtils.parseRequestUrlToMap(requestHeaderMap, line);
+
+            requestLine = new RequestLine(line);
+
             while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
                 HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
                 requestHeaderMap.put(pair.getKey(), pair.getValue());
                 log.info(headerLine);
             }
-
-            parseHeaderByUrl();
 
             if (getMethod().equals("POST")) {
                 parseParameter(IOUtils.readData(br, Integer.parseInt(requestHeaderMap.get("Content-Length"))));
@@ -61,35 +55,20 @@ public class HttpRequest {
         return this.requestHeaderMap.get(headerName);
     }
 
-    private void parseHeaderByUrl() {
-        String httpUrl = this.requestHeaderMap.get(REQUEST_PATH);
-        if (httpUrl == null) return;
-        int index = httpUrl.indexOf("?");
-        if (index > -1) {
-            requestHeaderMap.put(REQUEST_PATH, httpUrl.substring(0, index));
-            parseParameter(httpUrl, index);
-        } else {
-            requestHeaderMap.put(REQUEST_PATH, httpUrl);
-        }
-    }
-
     private void parseParameter(String parameters) {
         requestParameterMap = HttpRequestUtils.parseQueryString(parameters);
     }
 
-    private void parseParameter(String parameters, int index) {
-        requestParameterMap = HttpRequestUtils.parseQueryString(parameters.substring(index + 1));
-    }
-
     public String getMethod() {
-        return this.requestHeaderMap.get(REQUEST_METHOD);
+        return this.requestLine.getMethod();
     }
 
     public String getPath() {
-        return this.requestHeaderMap.get(REQUEST_PATH);
+        return this.requestLine.getPath();
     }
 
     public String getParameter(String key) {
         return this.requestParameterMap.get(key);
     }
+
 }
