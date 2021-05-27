@@ -26,7 +26,7 @@ public class RequestLine {
         method = HttpMethod.valueOf(split[0]);
         path = split[1];
 
-        if (method.isPost()) {
+        if (!method.isPost()) {
             int index = split[1].indexOf("?");
             if (index > -1) {
                 path = split[1].substring(0, index);

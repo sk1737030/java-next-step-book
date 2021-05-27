@@ -16,8 +16,9 @@ class RequestLineTest {
 
         Map<String, String> actualMap = new HashMap<>();
         RequestLine requestLine = new RequestLine(data);
+
         assertEquals(actualMap, expectedMap);
-        assertEquals("GET", requestLine.getMethod());
+        assertEquals("GET", requestLine.getMethod().name());
         assertEquals("/user/create", requestLine.getPath());
         assertEquals(3, requestLine.getParams().size());
         assertEquals("HTTP/1.1", requestLine.getHttpVersion());
@@ -30,7 +31,7 @@ class RequestLineTest {
 
         RequestLine requestLine = new RequestLine(http);
 
-        assertEquals("POST", requestLine.getMethod());
+        assertEquals("POST", requestLine.getMethod().name());
         assertEquals("/user/create", requestLine.getPath());
         assertEquals("HTTP/1.1", requestLine.getHttpVersion());
     }

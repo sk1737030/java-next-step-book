@@ -41,7 +41,7 @@ public class HttpRequest {
                 log.info(headerLine);
             }
 
-            if (getMethod().equals("POST")) {
+            if (getMethod().isPost()) {
                 parseParameter(IOUtils.readData(br, Integer.parseInt(requestHeaderMap.get("Content-Length"))));
             } else {
                 requestParameterMap = requestLine.getParams();
@@ -61,7 +61,7 @@ public class HttpRequest {
         requestParameterMap = HttpRequestUtils.parseQueryString(parameters);
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return this.requestLine.getMethod();
     }
 
