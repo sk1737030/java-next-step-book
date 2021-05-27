@@ -21,7 +21,7 @@ public class HttpResponse {
         dos = new DataOutputStream(out);
     }
 
-public void forward(String url) {
+    public void forward(String url) {
         try {
             final byte[] bytes = Files.readAllBytes(new File("./webapp" + url).toPath());
 
@@ -42,7 +42,7 @@ public void forward(String url) {
 
     public void forwardBody(String contentBody) {
         final byte[] bytes = contentBody.getBytes();
-        responseHeaderMap.put("Content-Type", "application/javascript");
+        responseHeaderMap.put("Content-Type", "text/html;charset=UTF-8");
         responseHeaderMap.put("Content-Length", String.valueOf(bytes.length));
         response200Header();
         responseBody(bytes);
@@ -50,8 +50,9 @@ public void forward(String url) {
 
     private void responseBody(byte[] body) {
         try {
-            this.dos.write(body, 0, body.length);
-            this.dos.flush();
+            dos.write(body, 0, body.length);
+            dos.writeBytes("\r\n");
+            dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -67,12 +68,6 @@ public void forward(String url) {
         }
     }
 
-    private void processHeaders() throws IOException {
-        final Set<String> keys = responseHeaderMap.keySet();
-        for (String key : keys) {
-            dos.writeBytes(key + ": " + responseHeaderMap.get(key) + "\r\n");
-        }
-    }
 
     public void sendRedirect(String redirectUrl) {
         try {
@@ -89,5 +84,10 @@ public void forward(String url) {
         responseHeaderMap.put(key, value);
     }
 
-
+    private void processHeaders() throws IOException {
+        final Set<String> keys = responseHeaderMap.keySet();
+        for (String key : keys) {
+            dos.writeBytes(key + ": " + responseHeaderMap.get(key) + "\r\n");
+        }
+    }
 }
