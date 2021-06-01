@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(value = "/user/logout")
+@WebServlet(value = "/users/logout")
 public class LogoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final HttpSession session = req.getSession();
         session.invalidate();
-        super.doPost(req, resp);
+        resp.sendRedirect("/");
     }
 }

@@ -8,8 +8,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @WebServlet("/user/list")
 public class ListUserServlet extends HttpServlet {
@@ -19,9 +19,13 @@ public class ListUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.info("/user/list init");
-        PrintWriter out = resp.getWriter();
-        out.println("<h1>안녕하세요</h1>");
+        final HttpSession session = req.getSession();
+        final Object user = session.getAttribute("user");
+        if (user == null) {
+            resp.sendRedirect("/user/login");
+            return;
+        }
 
+        super.doGet(req, resp);
     }
-
 }

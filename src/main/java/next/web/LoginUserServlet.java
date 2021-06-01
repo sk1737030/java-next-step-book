@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(value = {"/user/login", "/user/loginForm"})
+@WebServlet(value = {"/users/login", "/users/loginForm", "/user/login"})
 public class LoginUserServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(LoginUserServlet.class);
@@ -28,10 +28,13 @@ public class LoginUserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
         final User user = DataBase.findUserById(req.getParameter("userId"));
-        if (user != null && user.getPassword().equals(req.getParameter("password"))) {
-            session.setAttribute("user", user);
+        if (user == null || !user.getPassword().equals(req.getParameter("password"))) {
+            resp.sendRedirect("/user/login_failed.jsp");
+            return;
         }
-        super.doPost(req, resp);
+
+        session.setAttribute("user", user);
+        resp.sendRedirect("/");
     }
 
     private void forward(String forwardUrl, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

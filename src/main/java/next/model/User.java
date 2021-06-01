@@ -66,4 +66,9 @@ public class User {
         return true;
     }
 
+    public void update(String password, String name, String email) {
+        this.password = password;
+        this.name = name;
+        this.email = email;
+    }
 }
