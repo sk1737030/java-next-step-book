@@ -10,6 +10,7 @@ changes: tomcat 9, servlet 4.0, junit5, webapp 위치수정
 - [x] Jsp내에 UserLogin Check
 - [x] 로그아웃시 session invalidate
 
-
-
+- [x] 목록조회시 로그인 여부 필수
+- [x] 개인정보 수정 및 조회시 로그인 여부 필수
+- [x] jsp 중보코드 incude로 변경  
         
