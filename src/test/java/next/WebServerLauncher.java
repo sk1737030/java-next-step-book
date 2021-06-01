@@ -10,11 +10,11 @@ public class WebServerLauncher {
     private static final Logger logger = LoggerFactory.getLogger(WebServerLauncher.class);
 
     public static void main(String[] args) throws Exception {
-        String webappDirLocation = "webapp/";
+        String webappDirLocation = "src/main/webapp/";
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
         tomcat.getConnector();
-        tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
+        tomcat.addWebapp("", new File(webappDirLocation).getAbsolutePath());
         logger.info("configuring app with basedir: {}", new File("./" + webappDirLocation).getAbsolutePath());
 
         tomcat.start();
