@@ -13,6 +13,7 @@
         <junit.version>5.7.0</junit.version>
         <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
         <tomcat.version>9.0.41</tomcat.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -105,15 +106,18 @@
             <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
-            <version>${tomcat.version}</version>
-        </dependency>
+
     </dependencies>
 
     <build>
         <finalName>jwp-basic</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
