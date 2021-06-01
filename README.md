@@ -5,4 +5,11 @@
 
 changes: tomcat 9, servlet 4.0, junit5, webapp 위치수정
 
+#### 요구사항
+- [x] 로그인이 성공하는 경우 Session에 담기
+- [x] Jsp내에 UserLogin Check
+- [x] 로그아웃시 session invalidate
+
+
+
         
