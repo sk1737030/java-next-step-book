@@ -43,7 +43,7 @@ public class RequestHandler extends Thread {
             HttpRequest request = new HttpRequest(in);
             HttpResponse response = new HttpResponse(out);
 
-            if (getSessionId(request.getHeader("Cookie")) == null) {
+            if (request.getCookies().getCookies("JESSIONID") == null) {
                 response.addHeader("Set-Cookie", "JESSIONID=" + UUID.randomUUID());
             }
 
@@ -60,11 +60,4 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
         }
     }
-
-    private String getSessionId(String cookie) {
-        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookie);
-        return cookies.get("JESSIONID");
-    }
-
-
 }

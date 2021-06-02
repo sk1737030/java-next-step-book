@@ -57,6 +57,10 @@ public class HttpRequest {
         return this.requestHeaderMap.get(headerName);
     }
 
+    public HttpCookie getCookies() {
+        return new HttpCookie(getHeader("Cookie"));
+    }
+
     private void parseParameter(String parameters) {
         requestParameterMap = HttpRequestUtils.parseQueryString(parameters);
     }
