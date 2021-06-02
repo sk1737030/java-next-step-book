@@ -2,7 +2,6 @@ package http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HttpRequestUtils;
 import util.IOUtils;
 
 import java.io.BufferedReader;
@@ -10,63 +9,44 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class HttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
 
-    private final Map<String, String> requestHeaderMap = new HashMap<>();
-    private Map<String, String> requestParameterMap;
     private RequestLine requestLine;
-
+    private RequestParams requestParams = new RequestParams();
+    private HttpHeaders httpHeaders;
 
     public HttpRequest(InputStream in) {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String requestLine;
-            String line = br.readLine();
-            if (line == null) {
-                return;
-            }
-
-            log.info(line);
-
-            this.requestLine = new RequestLine(line);
-
-            while ((requestLine = br.readLine()) != null && !requestLine.equals("")) {
-                HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(requestLine);
-                requestHeaderMap.put(pair.getKey(), pair.getValue());
-                log.info(requestLine);
-            }
-
-            if (getMethod().isPost()) {
-                parseParameter(IOUtils.readData(br, Integer.parseInt(requestHeaderMap.get("Content-Length"))));
-            } else {
-                requestParameterMap = this.requestLine.getParams();
-            }
-
+            requestLine = new RequestLine(createRequestLine(br));
+            requestParams.addQueryString(requestLine.getQueryString());
+            httpHeaders = processHeaders(br);
+            requestParams.addBody(IOUtils.readData(br, httpHeaders.getContentLength()));
 
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
 
-    public String getHeader(String headerName) {
-        return this.requestHeaderMap.get(headerName);
+    private HttpHeaders processHeaders(BufferedReader br) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        String line;
+        while (!(line = br.readLine()).equals("")) {
+            headers.add(line);
+        }
+        return headers;
     }
 
-    public HttpCookie getCookies() {
-        return new HttpCookie(getHeader("Cookie"));
-    }
-
-    public HttpSession getSession() {
-        return HttpSessions.getSessions(getCookies().getCookies("JESSIONID"));
-    }
-
-    private void parseParameter(String parameters) {
-        requestParameterMap = HttpRequestUtils.parseQueryString(parameters);
+    private String createRequestLine(BufferedReader br) throws IOException {
+        String line = br.readLine();
+        if (line == null) {
+            throw new IllegalArgumentException();
+        }
+        return line;
     }
 
     public HttpMethod getMethod() {
@@ -77,8 +57,22 @@ public class HttpRequest {
         return this.requestLine.getPath();
     }
 
-    public String getParameter(String key) {
-        return this.requestParameterMap.get(key);
+    public String getHeader(String name) {
+        return this.httpHeaders.getHeader(name);
     }
+
+    public String getParameter(String name) {
+        return requestParams.getParameter(name);
+    }
+
+    public HttpCookie getCookies() {
+        return httpHeaders.getCookies();
+    }
+
+    public HttpSession getSession() {
+        return httpHeaders.getSession();
+    }
+
+
 
 }
