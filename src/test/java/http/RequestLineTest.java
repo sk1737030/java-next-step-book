@@ -20,19 +20,17 @@ class RequestLineTest {
         assertEquals(actualMap, expectedMap);
         assertEquals("GET", requestLine.getMethod().name());
         assertEquals("/user/create", requestLine.getPath());
-        assertEquals(3, requestLine.getParams().size());
-        assertEquals("HTTP/1.1", requestLine.getHttpVersion());
+        assertEquals("userId=javajigi&password=password&name=JaeSung", requestLine.getQueryString());
+        //assertEquals("HTTP/1.1", requestLine.getHttpVersion());
     }
 
     @Test
     void parseUrl_POST() {
         String http = "POST /user/create HTTP/1.1";
-        Map<String, String> actual = new HashMap<>();
 
         RequestLine requestLine = new RequestLine(http);
 
         assertEquals("POST", requestLine.getMethod().name());
         assertEquals("/user/create", requestLine.getPath());
-        assertEquals("HTTP/1.1", requestLine.getHttpVersion());
     }
 }

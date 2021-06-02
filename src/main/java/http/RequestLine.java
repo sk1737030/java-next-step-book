@@ -17,11 +17,10 @@ public class RequestLine {
 
         String[] split = line.split(" ");
         method = HttpMethod.valueOf(split[0]);
-        path = split[1];
-
         final String[] url = split[1].split("\\?");
+        path = url[0];
 
-        if (url[1] != null) {
+        if (url.length == 2) {
             this.queryString = url[1];
         }
     }

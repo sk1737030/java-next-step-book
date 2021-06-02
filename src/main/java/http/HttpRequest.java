@@ -35,7 +35,7 @@ public class HttpRequest {
     private HttpHeaders processHeaders(BufferedReader br) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         String line;
-        while (!(line = br.readLine()).equals("")) {
+        while ((line = br.readLine()) != null && !line.equals("")) {
             headers.add(line);
         }
         return headers;
@@ -72,7 +72,6 @@ public class HttpRequest {
     public HttpSession getSession() {
         return httpHeaders.getSession();
     }
-
 
 
 }
