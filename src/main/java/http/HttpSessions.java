@@ -12,4 +12,8 @@ public class HttpSessions {
     public static HttpSession getSessions(String id) {
         return sessions.putIfAbsent(id, new HttpSession(id));
     }
+
+    public static void remove(String name) {
+        sessions.remove(name);
+    }
 }

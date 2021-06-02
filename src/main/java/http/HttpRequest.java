@@ -25,7 +25,7 @@ public class HttpRequest {
     public HttpRequest(InputStream in) {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String headerLine;
+            String requestLine;
             String line = br.readLine();
             if (line == null) {
                 return;
@@ -33,18 +33,18 @@ public class HttpRequest {
 
             log.info(line);
 
-            requestLine = new RequestLine(line);
+            this.requestLine = new RequestLine(line);
 
-            while ((headerLine = br.readLine()) != null && !headerLine.equals("")) {
-                HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(headerLine);
+            while ((requestLine = br.readLine()) != null && !requestLine.equals("")) {
+                HttpRequestUtils.Pair pair = HttpRequestUtils.parseHeader(requestLine);
                 requestHeaderMap.put(pair.getKey(), pair.getValue());
-                log.info(headerLine);
+                log.info(requestLine);
             }
 
             if (getMethod().isPost()) {
                 parseParameter(IOUtils.readData(br, Integer.parseInt(requestHeaderMap.get("Content-Length"))));
             } else {
-                requestParameterMap = requestLine.getParams();
+                requestParameterMap = this.requestLine.getParams();
             }
 
 
@@ -59,6 +59,10 @@ public class HttpRequest {
 
     public HttpCookie getCookies() {
         return new HttpCookie(getHeader("Cookie"));
+    }
+
+    public HttpSession getSession() {
+        return HttpSessions.getSessions(getCookies().getCookies("JESSIONID"));
     }
 
     private void parseParameter(String parameters) {

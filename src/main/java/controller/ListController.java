@@ -3,8 +3,8 @@ package controller;
 import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpSession;
 import model.User;
-import util.HttpRequestUtils;
 
 import java.util.Collection;
 
@@ -33,6 +33,7 @@ public class ListController extends AbstractController {
     }
 
     private boolean isLogined(HttpRequest request) {
-        return Boolean.parseBoolean(HttpRequestUtils.parseCookies(request.getHeader("Cookie")).get("logined"));
+        final HttpSession session = request.getSession();
+        return session.getAttribute("user") != null;
     }
 }
