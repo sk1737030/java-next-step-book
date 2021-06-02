@@ -5,18 +5,18 @@ import java.util.Map;
 
 public class HttpSession {
 
-    private String jessionId;
+    private String jsessionId;
     private Map<String, Object> session = new HashMap<>();
 
     private HttpSession() {
     }
 
-    public HttpSession(String jessionId) {
-        this.jessionId = jessionId;
+    public HttpSession(String jsessionId) {
+        this.jsessionId = jsessionId;
     }
 
     public String getId() {
-        return jessionId;
+        return jsessionId;
     }
 
     public void setAttribute(String name, Object value) {
@@ -32,6 +32,6 @@ public class HttpSession {
     }
 
     public void invalidate() {
-        HttpSessions.remove(this.jessionId);
+        HttpSessions.remove(this.jsessionId);
     }
 }

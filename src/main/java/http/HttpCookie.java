@@ -11,7 +11,7 @@ public class HttpCookie {
         this.cookies = HttpRequestUtils.parseCookies(cookieValue);
     }
 
-    public String getCookies(String name) {
+    public String getCookie(String name) {
         return cookies.get(name);
     }
 

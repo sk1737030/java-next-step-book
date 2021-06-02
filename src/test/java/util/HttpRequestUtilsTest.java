@@ -44,10 +44,10 @@ class HttpRequestUtilsTest {
 
     @Test
     void parseCookies() {
-        String cookies = "logined=true; JESSIONID=1234";
+        String cookies = "logined=true; JSESSIONID=1234";
         Map<String, String> parameters = HttpRequestUtils.parseCookies(cookies);
         assertEquals(parameters.get("logined"), "true");
-        assertEquals(parameters.get("JESSIONID"), "1234");
+        assertEquals(parameters.get("JSESSIONID"), "1234");
         assertNull(parameters.get("session"));
     }
 
