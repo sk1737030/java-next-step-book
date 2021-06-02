@@ -5,8 +5,10 @@ import java.util.Map;
 
 public class HttpSession {
 
+    public static final String JSESSIONID = "JSESSIONID";
+    private final Map<String, Object> session = new HashMap<>();
+
     private String jsessionId;
-    private Map<String, Object> session = new HashMap<>();
 
     private HttpSession() {
     }

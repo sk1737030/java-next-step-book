@@ -1,5 +1,6 @@
 package util;
 
+import http.HttpSession;
 import model.User;
 import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
@@ -47,7 +48,7 @@ class HttpRequestUtilsTest {
         String cookies = "logined=true; JSESSIONID=1234";
         Map<String, String> parameters = HttpRequestUtils.parseCookies(cookies);
         assertEquals(parameters.get("logined"), "true");
-        assertEquals(parameters.get("JSESSIONID"), "1234");
+        assertEquals(parameters.get(HttpSession.JSESSIONID), "1234");
         assertNull(parameters.get("session"));
     }
 

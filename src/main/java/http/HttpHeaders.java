@@ -37,6 +37,6 @@ public class HttpHeaders {
     }
 
     public HttpSession getSession() {
-        return new HttpSession(getCookies().getCookie("JSESSIONID"));
+        return new HttpSession(getCookies().getCookie(HttpSession.JSESSIONID));
     }
 }

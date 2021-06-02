@@ -9,7 +9,7 @@ class HttpCookieTest {
     @Test
     void cookieTest() {
         HttpCookie httpCookie = new HttpCookie("logined=true; JSESSIONID=1234;");
-        assertEquals("1234", httpCookie.getCookie("JSESSIONID"));
+        assertEquals("1234", httpCookie.getCookie(HttpSession.JSESSIONID));
         assertEquals("true", httpCookie.getCookie("logined"));
     }
 

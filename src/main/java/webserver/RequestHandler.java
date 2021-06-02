@@ -7,6 +7,7 @@ import controller.ListController;
 import controller.LoginController;
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,8 @@ public class RequestHandler extends Thread {
             HttpRequest request = new HttpRequest(in);
             HttpResponse response = new HttpResponse(out);
 
-            if (request.getCookies().getCookie("JSESSIONID") == null) {
-                response.addHeader("Set-Cookie", "JSESSIONID=" + UUID.randomUUID());
+            if (request.getCookies().getCookie(HttpSession.JSESSIONID) == null) {
+                response.addHeader("Set-Cookie", HttpSession.JSESSIONID + "=" + UUID.randomUUID());
             }
 
             final Controller controller = controllerMap.get(request.getPath());
