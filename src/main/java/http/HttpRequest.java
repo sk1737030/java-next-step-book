@@ -16,7 +16,7 @@ public class HttpRequest {
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
 
     private RequestLine requestLine;
-    private RequestParams requestParams = new RequestParams();
+    private final RequestParams requestParams = new RequestParams();
     private HttpHeaders httpHeaders;
 
     public HttpRequest(InputStream in) {

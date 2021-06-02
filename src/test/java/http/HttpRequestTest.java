@@ -1,4 +1,4 @@
-package webserver;
+package http;
 
 import http.HttpMethod;
 import http.HttpRequest;

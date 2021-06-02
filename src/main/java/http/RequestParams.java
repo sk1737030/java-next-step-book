@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class RequestParams {
     private static final Logger log = LoggerFactory.getLogger(RequestParams.class);
-    private Map<String, String> params = new HashMap<>();
+    private final Map<String, String> params = new HashMap<>();
 
     public void addQueryString(String queryString) {
         putParams(queryString);
