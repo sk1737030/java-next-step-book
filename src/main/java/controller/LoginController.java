@@ -4,7 +4,6 @@ import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.HttpSession;
-import http.HttpSessions;
 import model.User;
 
 public class LoginController extends AbstractController {
@@ -21,7 +20,7 @@ public class LoginController extends AbstractController {
         User user = DataBase.findUserById(loginUser.getUserId());
         if (checkUser(loginUser, user)) {
             final HttpSession session = request.getSession();
-            session.setAttribute("user",loginUser);
+            session.setAttribute("user", loginUser);
             //response.addHeader("Set-Cookie", "logined=true");
             response.sendRedirect(request.getPath());
         } else {

@@ -8,10 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpHeaders {
-    private static final Logger log = LoggerFactory.getLogger(HttpHeaders.class);
-
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String COOKIE = "Cookie";
+    private static final Logger log = LoggerFactory.getLogger(HttpHeaders.class);
     private Map<String, String> headers = new HashMap<>();
 
 

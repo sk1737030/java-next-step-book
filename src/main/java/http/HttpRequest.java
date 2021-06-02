@@ -14,9 +14,8 @@ import java.nio.charset.StandardCharsets;
 public class HttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
-
-    private RequestLine requestLine;
     private final RequestParams requestParams = new RequestParams();
+    private RequestLine requestLine;
     private HttpHeaders httpHeaders;
 
     public HttpRequest(InputStream in) {

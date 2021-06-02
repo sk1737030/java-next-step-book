@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IOUtilsTest {
     private static final Logger logger = LoggerFactory.getLogger(IOUtilsTest.class);
@@ -21,7 +18,6 @@ class IOUtilsTest {
 
         logger.debug("parse body : {}", IOUtils.readData(br, data.length()));
     }
-
 
 
 }
