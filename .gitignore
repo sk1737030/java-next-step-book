@@ -13,6 +13,9 @@ gen
 **/build/
 !src/**/build/
 
+tomcat.8080/
+.idea/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
