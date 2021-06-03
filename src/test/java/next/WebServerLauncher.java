@@ -11,7 +11,7 @@ public class WebServerLauncher {
     private static final Logger logger = LoggerFactory.getLogger(WebServerLauncher.class);
 
     public static void main(String[] args) throws Exception {
-        String webappDirLocation = "src/main/webapp/";
+        String webappDirLocation = "./webapp/";
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
         final Connector connector = tomcat.getConnector();

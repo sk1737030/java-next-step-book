@@ -1,16 +1,10 @@
 ## [자바 넥스트스텝 책 정리](http://www.yes24.com/Product/Goods/31869154)
  
-### 서블릿/JSP 동적인 웹 애플리케이션 개발
+## mvc 프레임워크 구현
 
+### 요구사항
+- [ ] 모든 요청을 서블릿 하나가 받을 수 있도록 URL 매핑한다. (DispatcherServlet)
+- [ ] 컨트롤러 인터페이스를 추가한다. (Controller)
+- [ ] 요청 URl과 컨트롤러 매핑을 한다. (RequestMapping)
+- [ ] 특별한 로직 없이 뷰에 대한 이동만을 담당하는 클래스를 추가한다(FrontController)
 
-changes: tomcat 9, servlet 4.0, junit5, webapp 위치수정
-
-#### 요구사항
-- [x] 로그인이 성공하는 경우 Session에 담기
-- [x] Jsp내에 UserLogin Check
-- [x] 로그아웃시 session invalidate
-
-- [x] 목록조회시 로그인 여부 필수
-- [x] 개인정보 수정 및 조회시 로그인 여부 필수
-- [x] jsp 중복코드 incude로 변경  
-        
