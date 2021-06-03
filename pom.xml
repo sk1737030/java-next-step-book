@@ -14,6 +14,8 @@
         <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
         <tomcat.version>9.0.41</tomcat.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
     </properties>
 
     <dependencies>
@@ -106,7 +108,6 @@
             <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
