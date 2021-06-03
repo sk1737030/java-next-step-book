@@ -13,6 +13,7 @@ gen
 **/build/
 !src/**/build/
 
+gradle
 tomcat.8080/
 .idea/
 
