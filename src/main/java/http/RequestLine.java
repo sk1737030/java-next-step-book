@@ -20,6 +20,10 @@ public class RequestLine {
         final String[] url = split[1].split("\\?");
         path = url[0];
 
+        if (path.equals("/")){
+            path = "/index.html";
+        }
+
         if (url.length == 2) {
             this.queryString = url[1];
         }
