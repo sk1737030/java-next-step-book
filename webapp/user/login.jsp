@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
@@ -14,7 +13,7 @@
     <div class="col-md-6 col-md-offset-3">
         <div class="panel panel-default content-main">
             <c:if test="${loginFailed}">
-                <div class="alert alert-danger" role="alert">아이디 또는 비밀번호가 틀립니다. 다시 로그인 해주세요.</div>
+            <div class="alert alert-danger" role="alert">아이디 또는 비밀번호가 틀립니다. 다시 로그인 해주세요.</div>
             </c:if>
             <form name="question" method="post" action="/users/login">
                 <div class="form-group">
