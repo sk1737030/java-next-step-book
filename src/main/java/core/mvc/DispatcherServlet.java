@@ -20,16 +20,20 @@ public class DispatcherServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             log.debug("reqst uri : {}", req.getRequestURI());
+
+            // response
             final String goUrl = requestMapping.execute(req, resp);
+            log.debug("goUrl uri : {}", goUrl);
 
             if (!goUrl.contains(":")) {
-                RequestDispatcher rd = req.getRequestDispatcher(req.getRequestURI());
+                RequestDispatcher rd = req.getRequestDispatcher(goUrl);
                 rd.forward(req, resp);
-            } else {
-                final String[] urls = goUrl.split(":");
-                final String url = urls[1];
-                resp.sendRedirect(url);
+                return;
             }
+
+            final String[] urls = goUrl.split(":");
+            final String url = urls[1];
+            resp.sendRedirect(url);
         } catch (Exception e) {
             e.printStackTrace();
         }
