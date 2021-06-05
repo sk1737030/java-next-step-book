@@ -2,16 +2,18 @@ package core.mvc;
 
 import next.controller.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RequestMapping implements Controller {
+public class RequestMapping {
     private static final Map<String, Controller> controllerMap = new HashMap<>();
-    private static final ForwardController forwardController = new ForwardController();
 
     static {
+        controllerMap.put("/", new HomeController());
+        controllerMap.put("/users/form", new ForwardController("/user/form.jsp"));
+        controllerMap.put("/users/loginForm", new ForwardController("/user/login.jsp"));
+        controllerMap.put("/users", new ListUserController());
+        controllerMap.put("/users/profile", new ProfileController());
         controllerMap.put("/users/create", new CreateUserController());
         controllerMap.put("/users/list", new ListUserController());
         controllerMap.put("/users/login", new LoginUserController());
@@ -20,12 +22,11 @@ public class RequestMapping implements Controller {
         controllerMap.put("/users/updateForm", new UpdateFormController());
     }
 
-    @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (ForwardController.forwardList.containsKey(request.getRequestURI())) {
-            return forwardController.execute(request, response);
-        } else {
-            return controllerMap.get(request.getServletPath()).execute(request, response);
-        }
+    public Controller findController(String url) {
+        return controllerMap.get(url);
+    }
+
+    void put(String url, Controller controller) {
+        controllerMap.put(url, controller);
     }
 }
