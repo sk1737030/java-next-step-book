@@ -26,7 +26,6 @@ public class DispatcherServlet extends HttpServlet {
             // response
             final Controller controller = requestMapping.findController(req.getRequestURI());
             final String goUrl = controller.execute(req, resp);
-
             move(req, resp, goUrl);
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +39,7 @@ public class DispatcherServlet extends HttpServlet {
             return;
         }
 
-        resp.sendRedirect(goUrl.substring(goUrl.length()));
+        resp.sendRedirect(goUrl.substring(REDIRECT_PREFIX.length()));
     }
 
 
