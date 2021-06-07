@@ -53,10 +53,6 @@ public class JdbcTemplate {
     }
 
     void setValues(PreparedStatement pstmt) throws SQLException {
-        /*pstmt.setString(1, user.getUserId());
-        pstmt.setString(2, user.getPassword());
-        pstmt.setString(3, user.getName());
-        pstmt.setString(4, user.getEmail());
-        pstmt.setString(5, user.getUserId());*/
+
     }
 }
