@@ -45,7 +45,7 @@ class UserDaoTest {
         userDao.insert(mockUser);
 
         User expected = new User("userId", "passwordsss", "namesss", "javajigiss@email.com");
-        userDao.updateUser(expected);
+        userDao.update(expected);
 
         User actual = userDao.findByUserId(expected.getUserId());
         assertEquals(expected, actual);

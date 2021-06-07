@@ -6,3 +6,6 @@
 - [X] 전체 회원 목록 조회 쿼리 추가
 - [X] 개인 정보 수정 쿼리 추가
 
+### 리팩토링
+- [X] jdbcTemplate 도출
+- [ ] selectjdbctemplate 도출

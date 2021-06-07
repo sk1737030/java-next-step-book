@@ -12,28 +12,44 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-
-            pstmt.executeUpdate();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+        JdbcTemplate insertJdbcTemplate = new JdbcTemplate() {
+            @Override
+            String createQuery() {
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
 
-            if (con != null) {
-                con.close();
+            @Override
+            void setValues(PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
             }
-        }
+        };
+
+        insertJdbcTemplate.insert();
     }
+
+
+    public int update(User user) throws SQLException {
+        JdbcTemplate update = new JdbcTemplate(){
+            @Override
+            String createQuery() {
+                return "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?";
+            }
+
+            @Override
+            void setValues( PreparedStatement pstmt) throws SQLException {
+                pstmt.setString(1, user.getUserId());
+                pstmt.setString(2, user.getPassword());
+                pstmt.setString(3, user.getName());
+                pstmt.setString(4, user.getEmail());
+                pstmt.setString(5, user.getUserId());
+            }
+        };
+        return update.update();
+    }
+
 
     public void delete(String userId) throws SQLException {
         Connection con = null;
@@ -130,31 +146,6 @@ public class UserDao {
             if (rs != null) {
                 rs.close();
             }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
-    }
-
-    public int updateUser(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-            pstmt.setString(5, user.getUserId());
-
-            return pstmt.executeUpdate();
-        } finally {
             if (pstmt != null) {
                 pstmt.close();
             }
