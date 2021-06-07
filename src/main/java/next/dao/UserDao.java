@@ -13,12 +13,12 @@ public class UserDao {
     public void insert(User user) throws SQLException {
         JdbcTemplate insertJdbcTemplate = new JdbcTemplate() {
             @Override
-            String createQuery() {
+            public String createQuery() {
                 return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
             }
 
             @Override
-            void setValues(PreparedStatement pstmt) throws SQLException {
+            public void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -33,12 +33,12 @@ public class UserDao {
     public int update(User user) throws SQLException {
         JdbcTemplate update = new JdbcTemplate() {
             @Override
-            String createQuery() {
+            public String createQuery() {
                 return "UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?";
             }
 
             @Override
-            void setValues(PreparedStatement pstmt) throws SQLException {
+            public void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, user.getUserId());
                 pstmt.setString(2, user.getPassword());
                 pstmt.setString(3, user.getName());
@@ -92,7 +92,7 @@ public class UserDao {
     }
 
     public List<User> findAll() throws SQLException {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate JdbcTemplate = new JdbcTemplate() {
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
                 super.setValues(pstmt);
@@ -105,15 +105,15 @@ public class UserDao {
             }
 
             @Override
-            public String createSelectQuery() {
+            public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS";
             }
         };
-        return (List<User>) selectJdbcTemplate.query("");
+        return (List<User>) JdbcTemplate.query("");
     }
 
     public User findByUserId(String userId) throws SQLException {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate() {
+        JdbcTemplate JdbcTemplate = new JdbcTemplate() {
             @Override
             public void setValues(PreparedStatement pstmt) throws SQLException {
                 pstmt.setString(1, userId);
@@ -126,12 +126,12 @@ public class UserDao {
             }
 
             @Override
-            public String createSelectQuery() {
+            public String createQuery() {
                 return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
             }
         };
 
-        return (User) selectJdbcTemplate.queryForObject(userId);
+        return (User) JdbcTemplate.queryForObject(userId);
     }
 
 
