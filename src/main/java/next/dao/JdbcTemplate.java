@@ -9,17 +9,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTemplate {
+public abstract class JdbcTemplate {
 
-    public List<?> query(String str) throws SQLException {
+    public List<?> query(String sql) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<Object> objects = new ArrayList<>();
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
-
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
@@ -43,15 +41,14 @@ public class JdbcTemplate {
         }
     }
 
-    public Object queryForObject(String str) throws SQLException {
+    public Object executeQuery(String sql) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            setParameters(pstmt);
 
             rs = pstmt.executeQuery();
 
@@ -77,14 +74,13 @@ public class JdbcTemplate {
         }
     }
 
-    public int update() throws SQLException {
+    public int update(String sql) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            setParameters(pstmt);
 
             return pstmt.executeUpdate();
         } finally {
@@ -97,14 +93,13 @@ public class JdbcTemplate {
         }
     }
 
-    public void insert() throws SQLException {
+    public void insert(String sql) throws SQLException {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
             pstmt = con.prepareStatement(sql);
-            setValues(pstmt);
+            setParameters(pstmt);
 
             pstmt.executeUpdate();
         } finally {
@@ -119,17 +114,8 @@ public class JdbcTemplate {
     }
 
 
-    public void setValues(PreparedStatement pstmt) throws SQLException {
-        //pstmt.setString(1, userId);
-    }
+    public abstract void setParameters(PreparedStatement pstmt) throws SQLException;
 
-    public Object mapRow(ResultSet rs) throws SQLException {
-        return null;
-    }
-
-    public String createQuery() {
-        //SELECT userId, password, name, email FROM USERS WHERE userid=?
-        return "";
-    }
+    public abstract Object mapRow(ResultSet rs) throws SQLException;
 
 }
