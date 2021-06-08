@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.exception.DataAccessException;
 import core.jdbc.ConnectionManager;
 
 import java.sql.Connection;
@@ -19,7 +20,7 @@ public abstract class JdbcTemplate {
             }
             return objects;
         } catch (SQLException throwables) {
-            throw new IllegalArgumentException("잘못된 sql입니다.");
+            throw new DataAccessException();
         }
     }
 
@@ -35,7 +36,7 @@ public abstract class JdbcTemplate {
             }
 
         } catch (SQLException sqlException) {
-            throw new IllegalArgumentException("잘못된 sql입니다.");
+            throw new DataAccessException();
         }
     }
 
@@ -44,7 +45,7 @@ public abstract class JdbcTemplate {
             setParameters(pstmt);
             return pstmt.executeUpdate();
         } catch (SQLException sqlException) {
-            throw new IllegalArgumentException("잘못된 SQL입니다.");
+            throw new DataAccessException();
         }
     }
 
@@ -53,7 +54,7 @@ public abstract class JdbcTemplate {
             setParameters(pstmt);
             pstmt.executeUpdate();
         } catch (SQLException sqlException) {
-            throw new IllegalArgumentException("잘못된 SQL입니다.");
+            throw new DataAccessException();
         }
     }
 
