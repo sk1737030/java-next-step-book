@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
     public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
         List<T> objects = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
@@ -50,7 +50,7 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public void insert(String sql, PreparedStatementSetter... pstmtst) {
+    public void insert(String sql, PreparedStatementSetter pstmtst) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmtst.setParameters(pstmt);
 

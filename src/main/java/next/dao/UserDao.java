@@ -11,10 +11,7 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) {
-        JdbcTemplate insertJdbcTemplate = new JdbcTemplate() {
-        };
-
-        insertJdbcTemplate.insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", pstmt -> {
+        new JdbcTemplate().insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -24,9 +21,7 @@ public class UserDao {
 
 
     public int update(User user) {
-        JdbcTemplate update = new JdbcTemplate() {
-        };
-        return update.update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?", pstmt -> {
+        return new JdbcTemplate().update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?", pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -78,19 +73,13 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        JdbcTemplate JdbcTemplate = new JdbcTemplate() {
-        };
-        return JdbcTemplate.query("SELECT userId, password, name, email FROM USERS", rs ->
+        return new JdbcTemplate().query("SELECT userId, password, name, email FROM USERS", rs ->
                 new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email")));
     }
 
     public User findByUserId(String userId) {
-        JdbcTemplate JdbcTemplate = new JdbcTemplate() {
-        };
-
-
-        return JdbcTemplate.executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=?",
+        return new JdbcTemplate().executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=?",
                 rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email")), pstmt -> pstmt.setString(1, userId));
     }
