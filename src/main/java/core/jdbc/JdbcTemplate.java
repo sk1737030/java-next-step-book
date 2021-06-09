@@ -22,9 +22,11 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public <T> T executeQuery(String sql, RowMapper<T> rowMapper) {
+    public <T> T executeQuery(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pstmtst) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setParameters(pstmt);
+
+            pstmtst.setParameters(pstmt);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 T object = null;
                 if (rs.next()) {
@@ -38,26 +40,25 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public int update(String sql) {
+    public int update(String sql, PreparedStatementSetter pstmtst) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setParameters(pstmt);
+            pstmtst.setParameters(pstmt);
+
             return pstmt.executeUpdate();
         } catch (SQLException sqlException) {
             throw new DataAccessException();
         }
     }
 
-    public void insert(String sql) {
+    public void insert(String sql, PreparedStatementSetter... pstmtst) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-            setParameters(pstmt);
+            pstmtst.setParameters(pstmt);
+
             pstmt.executeUpdate();
         } catch (SQLException sqlException) {
             throw new DataAccessException();
         }
     }
-
-
-    public abstract void setParameters(PreparedStatement pstmt) throws SQLException;
 
 
 }
