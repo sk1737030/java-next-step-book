@@ -1,7 +1,6 @@
-package next.dao;
+package core.jdbc;
 
 import core.exception.DataAccessException;
-import core.jdbc.ConnectionManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class JdbcTemplate {
-
-    public List<?> query(String sql) {
-        List<Object> objects = new ArrayList<>();
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) {
+        List<T> objects = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                objects.add(mapRow(rs));
+                objects.add(rowMapper.mapRow(rs));
             }
             return objects;
         } catch (SQLException throwables) {
@@ -24,15 +22,15 @@ public abstract class JdbcTemplate {
         }
     }
 
-    public Object executeQuery(String sql) {
+    public <T> T executeQuery(String sql, RowMapper<T> rowMapper) {
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             setParameters(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
-                Object user = null;
+                T object = null;
                 if (rs.next()) {
-                    user = mapRow(rs);
+                    object = rowMapper.mapRow(rs);
                 }
-                return user;
+                return object;
             }
 
         } catch (SQLException sqlException) {
@@ -61,6 +59,5 @@ public abstract class JdbcTemplate {
 
     public abstract void setParameters(PreparedStatement pstmt) throws SQLException;
 
-    public abstract Object mapRow(ResultSet rs) throws SQLException;
 
 }
