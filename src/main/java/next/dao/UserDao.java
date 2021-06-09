@@ -2,6 +2,8 @@ package next.dao;
 
 import core.jdbc.ConnectionManager;
 import core.jdbc.JdbcTemplate;
+import core.jdbc.PreparedStatementSetter;
+import core.jdbc.RowMapper;
 import next.model.User;
 
 import java.sql.Connection;
@@ -11,23 +13,26 @@ import java.util.List;
 
 public class UserDao {
     public void insert(User user) {
-        new JdbcTemplate().insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", pstmt -> {
+        final PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
-        });
+        };
+
+        new JdbcTemplate().insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", preparedStatementSetter);
     }
 
 
     public int update(User user) {
-        return new JdbcTemplate().update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?", pstmt -> {
+        final PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
             pstmt.setString(5, user.getUserId());
-        });
+        };
+        return new JdbcTemplate().update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?", preparedStatementSetter);
     }
 
 
@@ -73,15 +78,22 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        return new JdbcTemplate().query("SELECT userId, password, name, email FROM USERS", rs ->
+        final RowMapper<User> userRowMapper = rs ->
                 new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
+                        rs.getString("email"));
+
+        return new JdbcTemplate().query("SELECT userId, password, name, email FROM USERS", userRowMapper);
     }
 
     public User findByUserId(String userId) {
+        final RowMapper<User> userRowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                rs.getString("email"));
+
+        final PreparedStatementSetter preparedStatementSetter = pstmt -> pstmt.setString(1, userId);
+
         return new JdbcTemplate().executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")), pstmt -> pstmt.setString(1, userId));
+                userRowMapper,
+                preparedStatementSetter);
     }
 
 
