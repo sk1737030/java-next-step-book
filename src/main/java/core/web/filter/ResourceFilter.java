@@ -13,14 +13,14 @@ import java.util.List;
 @WebFilter("/*")
 public class ResourceFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(ResourceFilter.class);
-    private static final List<String> resourcePrefixs = new ArrayList<>();
+    private static final List<String> resourcePrefixes = new ArrayList<>();
 
     static {
-        resourcePrefixs.add("/css");
-        resourcePrefixs.add("/js");
-        resourcePrefixs.add("/fonts");
-        resourcePrefixs.add("/images");
-        resourcePrefixs.add("/favicon.ico");
+        resourcePrefixes.add("/css");
+        resourcePrefixes.add("/js");
+        resourcePrefixes.add("/fonts");
+        resourcePrefixes.add("/images");
+        resourcePrefixes.add("/favicon.ico");
     }
 
     private RequestDispatcher defaultRequestDispatcher;
@@ -44,7 +44,7 @@ public class ResourceFilter implements Filter {
     }
 
     private boolean isResourceUrl(String url) {
-        for (String prefix : resourcePrefixs) {
+        for (String prefix : resourcePrefixes) {
             if (url.startsWith(prefix)) {
                 return true;
             }

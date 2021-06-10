@@ -67,5 +67,4 @@ class UserDaoTest {
         assertEquals(expected, actualList);
     }
 
-
 }

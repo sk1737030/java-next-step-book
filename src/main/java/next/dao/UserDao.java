@@ -32,6 +32,7 @@ public class UserDao {
             pstmt.setString(4, user.getEmail());
             pstmt.setString(5, user.getUserId());
         };
+
         return new JdbcTemplate().update("UPDATE USERS SET userId = ?, password = ?, name = ?, email = ? WHERE userid=?", preparedStatementSetter);
     }
 
@@ -82,19 +83,14 @@ public class UserDao {
                 new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                         rs.getString("email"));
 
-        return new JdbcTemplate().query("SELECT userId, password, name, email FROM USERS", userRowMapper);
+        return new JdbcTemplate().executeListQuery("SELECT userId, password, name, email FROM USERS", userRowMapper);
     }
 
     public User findByUserId(String userId) {
         final RowMapper<User> userRowMapper = rs -> new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
                 rs.getString("email"));
 
-        final PreparedStatementSetter preparedStatementSetter = pstmt -> pstmt.setString(1, userId);
-
         return new JdbcTemplate().executeQuery("SELECT userId, password, name, email FROM USERS WHERE userid=?",
-                userRowMapper,
-                preparedStatementSetter);
+                userRowMapper, userId);
     }
-
-
 }

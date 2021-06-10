@@ -28,7 +28,7 @@ public class DispatcherServlet extends HttpServlet {
             final String goUrl = controller.execute(req, resp);
             move(req, resp, goUrl);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ServletException(e.getMessage());
         }
     }
 

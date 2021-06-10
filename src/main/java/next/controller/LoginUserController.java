@@ -1,6 +1,6 @@
 package next.controller;
 
-import core.db.DataBase;
+import next.dao.UserDao;
 import next.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,8 @@ public class LoginUserController implements Controller {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        final User user = DataBase.findUserById(request.getParameter("userId"));
+        UserDao userDao = new UserDao();
+        final User user = userDao.findByUserId(request.getParameter("userId"));
         if (user == null || !user.getPassword().equals(request.getParameter("password"))) {
             return "redirect:/user/login_failed.jsp";
         }
