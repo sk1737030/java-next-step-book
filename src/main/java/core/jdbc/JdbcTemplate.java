@@ -60,6 +60,4 @@ public class JdbcTemplate {
             throw new DataAccessException();
         }
     }
-
-
 }
