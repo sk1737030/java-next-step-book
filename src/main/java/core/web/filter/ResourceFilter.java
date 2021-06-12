@@ -21,6 +21,7 @@ public class ResourceFilter implements Filter {
         resourcePrefixes.add("/fonts");
         resourcePrefixes.add("/images");
         resourcePrefixes.add("/favicon.ico");
+        resourcePrefixes.add(".html");
     }
 
     private RequestDispatcher defaultRequestDispatcher;
@@ -45,7 +46,7 @@ public class ResourceFilter implements Filter {
 
     private boolean isResourceUrl(String url) {
         for (String prefix : resourcePrefixes) {
-            if (url.startsWith(prefix)) {
+            if (url.startsWith(prefix) || url.endsWith(prefix)) {
                 return true;
             }
         }

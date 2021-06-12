@@ -20,6 +20,8 @@ public class RequestMapping {
         controllerMap.put("/users/logout", new LogoutController());
         controllerMap.put("/users/update", new UpdateFormController());
         controllerMap.put("/users/updateForm", new UpdateFormController());
+        controllerMap.put("/qna/show", new ShowController());
+
     }
 
     public Controller findController(String url) {

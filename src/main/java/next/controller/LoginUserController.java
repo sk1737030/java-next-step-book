@@ -14,9 +14,10 @@ public class LoginUserController implements Controller {
     private static final Logger log = LoggerFactory.getLogger(LoginUserController.class);
 
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public String execute(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         UserDao userDao = new UserDao();
+        log.info("userId {} ", request.getParameter("userId"));
         final User user = userDao.findByUserId(request.getParameter("userId"));
         if (user == null || !user.getPassword().equals(request.getParameter("password"))) {
             return "redirect:/user/login_failed.jsp";

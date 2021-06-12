@@ -14,8 +14,8 @@ public class JdbcTemplate {
     public <T> List<T> executeListQuery(String sql, RowMapper<T> rowMapper, PreparedStatementSetter pss) {
         List<T> objects = new ArrayList<>();
         try (Connection con = ConnectionManager.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
+            pss.setParameters(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
-                pss.setParameters(pstmt);
                 while (rs.next()) {
                     objects.add(rowMapper.mapRow(rs));
                 }

@@ -22,10 +22,9 @@ public class ExceptionFilter implements Filter {
         try {
             chain.doFilter(request, response);
         } catch (ServletException servletException) {
-            log.warn("Error Occur {0}", servletException);
+            log.warn("Error Occur ", servletException);
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendRedirect("/");
         }
-
     }
 }

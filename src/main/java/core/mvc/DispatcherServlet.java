@@ -26,8 +26,11 @@ public class DispatcherServlet extends HttpServlet {
             // response
             final Controller controller = requestMapping.findController(req.getRequestURI());
             final String goUrl = controller.execute(req, resp);
-            move(req, resp, goUrl);
+            if (goUrl != null) {
+                move(req, resp, goUrl);
+            }
         } catch (Exception e) {
+            log.error("error ", e);
             throw new ServletException(e.getMessage());
         }
     }
