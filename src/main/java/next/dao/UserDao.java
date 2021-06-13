@@ -1,9 +1,6 @@
 package next.dao;
 
-import core.jdbc.ConnectionManager;
-import core.jdbc.JdbcTemplate;
-import core.jdbc.PreparedStatementSetter;
-import core.jdbc.RowMapper;
+import core.jdbc.*;
 import next.model.User;
 
 import java.sql.Connection;
@@ -12,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
-    public void insert(User user) {
+    public long insert(User user) {
         final PreparedStatementSetter preparedStatementSetter = pstmt -> {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
@@ -20,7 +17,9 @@ public class UserDao {
             pstmt.setString(4, user.getEmail());
         };
 
-        new JdbcTemplate().insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", preparedStatementSetter);
+        KeyHolder keyHolder = new KeyHolder();
+        new JdbcTemplate().insert("INSERT INTO USERS VALUES (?, ?, ?, ?)", preparedStatementSetter, keyHolder);
+        return keyHolder.getRowKey();
     }
 
 

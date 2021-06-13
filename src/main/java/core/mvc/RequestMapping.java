@@ -21,6 +21,7 @@ public class RequestMapping {
         controllerMap.put("/users/update", new UpdateFormController());
         controllerMap.put("/users/updateForm", new UpdateFormController());
         controllerMap.put("/qna/show", new ShowController());
+        controllerMap.put("/qna/create", new CreateQnaController());
 
     }
 
